@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 
@@ -15,6 +16,8 @@ public class InputManager : MonoBehaviour
 
     public float swipeValueNormalized { get; private set; }
     public bool isTouchValid = true;
+
+    private Vector2 moveDirection;
 
 
 
@@ -54,5 +57,16 @@ public class InputManager : MonoBehaviour
     public Vector2 TouchPosition()
     {
         return touchInputSystem.Touch.TouchPosition.ReadValue<Vector2>();
+    }
+
+
+    private void Update()
+    {
+        moveDirection = touchInputSystem.Touch.Move.ReadValue<Vector2>();
+    }
+
+    public Vector2 GetMoveDirection()
+    {
+        return moveDirection.normalized;
     }
 }

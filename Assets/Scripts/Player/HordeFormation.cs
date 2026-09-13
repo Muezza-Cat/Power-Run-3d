@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 
@@ -12,8 +11,7 @@ public class HordeFormation : MonoBehaviour
 
     [Header("Reference")]
     [SerializeField] private Transform zombiePrefab;
-    [SerializeField] private Transform unitsParent;
-    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private Transform lookTransform;
 
     [Header("Setting")]
     public int startingUnitsCount = 4;
@@ -26,8 +24,10 @@ public class HordeFormation : MonoBehaviour
     private float halfOfUnitWidth;
     private float unitCount;
 
+    [Header("Collections")]
     private List<Vector3> points;
     private List<Transform> units;
+    private List<float> distanceFromPoints;
 
 
 
@@ -46,6 +46,7 @@ public class HordeFormation : MonoBehaviour
 
         points = new List<Vector3>();
         units = new List<Transform>();
+        distanceFromPoints = new List<float>();
 
         halfOfUnitWidth = (numberOfColumns - 1) / 2f;
         unitCount = startingUnitsCount;
@@ -54,7 +55,6 @@ public class HordeFormation : MonoBehaviour
     private void Start()
     {
         UpdateUnitDepth();
-        Debug.Log("Starting number of Rows: " + UpdateUnitDepth());
         EvaluatePoints(true);
     }
 
@@ -63,10 +63,7 @@ public class HordeFormation : MonoBehaviour
     private void EvaluatePoints(bool spawnInitialUnits) //Sets Position;
     {
         UpdateUnitDepth();
-        Debug.Log("Number of Rows: " + UpdateUnitDepth());
-        Debug.Log("UnitCount: " + unitCount);
-        Debug.Log("Number of Columns: " + numberOfColumns);
-        Debug.Log("pointsCount: " + points.Count);
+        
         for (float z = 0; z > -numberOfRows; z--)
         {
             for (float x = 0; x < numberOfColumns; x++)
@@ -80,31 +77,36 @@ public class HordeFormation : MonoBehaviour
 
                 if (points.Count >= unitCount) 
                 {
-                    Debug.Log("Broken out of Evaluate Points");
                     break;
                 }
+
                 Vector3 position = new Vector3(xPos * unitSpacingX, 0f, z * unitSpacingZ); //First (0,0);
                 position += GetSlotJitter();
                 points.Add(position);
+
+                float distanceFromPoint = Vector3.Distance(position, Vector3.zero);
+                distanceFromPoints.Add(distanceFromPoint);
+
                 if (spawnInitialUnits)
                 {
-                    SpawnInitialUnits(position);
+                    SpawnInitialUnits(/*position*/);
                 } 
             }
         }
     }
 
 
-    private void SpawnInitialUnits(Vector3 position)
+    private void SpawnInitialUnits(/*Vector3 position*/)
     {
-        Transform startingUnit = Instantiate(zombiePrefab, position, Quaternion.identity);
+        //Vector3 worldPosition = transform.TransformPoint(position);
+        Transform startingUnit = Instantiate(zombiePrefab, points[0], transform.rotation);
         units.Add(startingUnit);
     }
 
 
     private int UpdateUnitDepth()
     {
-        numberOfRows = Mathf.CeilToInt( unitCount / numberOfColumns);
+        numberOfRows = Mathf.CeilToInt(unitCount / numberOfColumns);
         return numberOfRows;
     }
 
@@ -114,12 +116,18 @@ public class HordeFormation : MonoBehaviour
         return new Vector3(offset.x, 0f, offset.y);
     }
 
+
+
+
     //Addition and Removal;
     public void AddNewRecruit(Transform newRecruit)
     {
         units.Add(newRecruit);
         unitCount++;
+
         points.Clear();
+        distanceFromPoints.Clear();
+
         EvaluatePoints(false);
     }
 
@@ -127,16 +135,21 @@ public class HordeFormation : MonoBehaviour
     {
         units.Remove(unit);
         unitCount--;
+
         points.Clear();
+        distanceFromPoints.Clear();
+
         EvaluatePoints(false);
         Destroy(unit.gameObject);
     }
 
 
-    
+
+
+    private float hurrySpeed = 4f;
+    private float relaxedSpeed = 2f;
     private void Update()
     {
-        float catchupSpeed = 6f;
         for (int i = 0; i < units.Count; i++)
         {
             Transform unit = units[i];
@@ -144,13 +157,12 @@ public class HordeFormation : MonoBehaviour
             if (units.Count > points.Count) break;
             Vector3 worldPoint = transform.TransformPoint(points[i]); //Convert to world space;
 
-            unit.position = Vector3.MoveTowards(unit.position, worldPoint, catchupSpeed * Time.deltaTime);
+            float unitMoveSpeed = (Vector3.Distance(unit.position, transform.TransformPoint(points[0])) > distanceFromPoints[i])? UnityEngine.Random.Range(relaxedSpeed, hurrySpeed): relaxedSpeed;
+            unit.position = Vector3.MoveTowards(unit.position, worldPoint, unitMoveSpeed * Time.deltaTime);
 
-            //Needs Upgrades;
-            Quaternion unitRotation = unit.rotation;
-            unitRotation = Quaternion.LookRotation(transform.TransformPoint(points[0]));
-            unitRotation.x = unitRotation.z = 0f;
-            unit.rotation = unitRotation;
+            Vector3 lookRot = (lookTransform.position - unit.position).normalized;
+            lookRot.y = 0f;
+            unit.forward = lookRot;
         }
     }
 }
