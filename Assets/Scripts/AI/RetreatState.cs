@@ -3,9 +3,9 @@ using UnityEngine.AI;
 
 
 [Serializable]  
-public class RunState : BaseState
+public class RetreatState : BaseState
 {
-    public RunState(EnemyController enemyController, NavMeshAgent agent) : base(enemyController, agent)
+    public RetreatState(EnemyController enemyController, NavMeshAgent agent) : base(enemyController, agent)
     {
 
     }
@@ -20,7 +20,7 @@ public class RunState : BaseState
 
     }
 
-    public override void OnStateStay()
+    public override void OnStateUpdate()
     {
 
     }

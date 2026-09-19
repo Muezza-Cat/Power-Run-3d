@@ -7,9 +7,6 @@ public class Killer : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == 6)
-        {
-            HordeFormation.Instance.RemoveUnit(other.transform);
-        }
+        
     }
 }

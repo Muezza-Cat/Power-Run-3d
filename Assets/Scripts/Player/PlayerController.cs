@@ -1,16 +1,11 @@
-using TMPro;
 using UnityEngine;
 
 
-public class ZombieHordeController : MonoBehaviour
+public class PlayerController : BaseController
 {
-    public static ZombieHordeController Instance { get; private set; }
-
-
     [Header("Reference")]
-    [SerializeField] private TextMeshProUGUI screenText;
     private CharacterController controller;
-    public LayerMask interactableLayer;
+    [HideInInspector] public HordeFormation hordeFormation;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 4f;
@@ -24,23 +19,16 @@ public class ZombieHordeController : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-
         controller = GetComponent<CharacterController>();
+        hordeFormation = GetComponent<HordeFormation>();
     }
+
 
 
     private void Update()
     {
         MovementHandler();
-        //RotationHandler(); 
+        //RotationHandler();
     }
 
 
@@ -51,10 +39,17 @@ public class ZombieHordeController : MonoBehaviour
         controller.Move(moveDirection * moveSpeed * Time.deltaTime);
     }
 
-    private void RotationHandler()
+    public override Vector3 GetRotation()
     {
-        if (InputManager.Instance.GetMoveDirection() == Vector2.zero) return;
-        Vector3 lookDir = new Vector3(InputManager.Instance.GetMoveDirection().x, 0f, InputManager.Instance.GetMoveDirection().y);
-        transform.rotation = Quaternion.LookRotation(lookDir);
+        return new Vector3(0f, Mathf.Atan2(InputManager.Instance.GetMoveDirection().x, InputManager.Instance.GetMoveDirection().y) * Mathf.Rad2Deg, 0f);
+    }
+
+    public override BaseController GetController()
+    {
+        return this;
+    }
+    public override float GetMoveSpeed()
+    {
+        return moveSpeed;
     }
 }

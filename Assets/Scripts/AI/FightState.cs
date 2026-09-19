@@ -13,7 +13,7 @@ public class FightState : BaseState
 
     }
 
-    public override void OnStateStay()
+    public override void OnStateUpdate()
     {
         if (Vector3.Distance(agent.transform.position, enemyController.player.position) > 2f)
         {

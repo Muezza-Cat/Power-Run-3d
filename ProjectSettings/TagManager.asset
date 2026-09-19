@@ -8,12 +8,12 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - FreeUnit
+  - Player
   - Water
   - UI
-  - Enemy
-  - 
-  - 
+  - Enemy1
+  - Enemy2
+  - Enemy3
   - 
   - 
   - 
