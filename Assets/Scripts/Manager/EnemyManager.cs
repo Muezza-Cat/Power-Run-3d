@@ -9,16 +9,16 @@ public class EnemyManager : MonoBehaviour
 
     [SerializeField] private List<DifficultyMode> difficultyModes;
     public List<HordeFormation> hordeFormations;
+    public float singleUnitMorale = 2f;
+    public float unitGroupMorale = 10f; //if unit Count is in the multiple of 10;
 
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(this.gameObject);
-    }
 
-    private void Start()
-    {
+
         foreach (DifficultyMode controller in difficultyModes)
         {
             controller.enemyController.SetDifficultyMode(controller.difficultyMode);

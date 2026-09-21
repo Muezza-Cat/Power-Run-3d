@@ -7,7 +7,7 @@ public class HordeFormation : MonoBehaviour
 {
     [Header("Important")]
     public LayerMask enemyLayer;
-    public int score;
+    public float hordeMorale { get; private set; }
     [HideInInspector] public BaseController baseController; //Parent
 
 
@@ -133,6 +133,8 @@ public class HordeFormation : MonoBehaviour
 
     private void Update()
     {
+        CalculateHordeMorale();
+
         for (int i = 0; i < units.Count; i++)
         {
             Transform unit = units[i];
@@ -147,6 +149,21 @@ public class HordeFormation : MonoBehaviour
 
             //Position
             unit.position = Vector3.MoveTowards(unit.position, worldPoint, unitMoveSpeed * Time.deltaTime);
+        }
+    }
+
+    private float moraleCalculationCooldown = 0.2f;
+    private float elapsedTime = 0f;
+    private void CalculateHordeMorale()
+    {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= moraleCalculationCooldown && unitCount >= 0)
+        {
+            elapsedTime = 0f;
+            int quotient = Mathf.FloorToInt(unitCount / 10f);
+
+            float additionalMorale = (quotient == 0) ? 0f : quotient * EnemyManager.Instance.unitGroupMorale;
+            hordeMorale = (units.Count * EnemyManager.Instance.singleUnitMorale) + additionalMorale;
         }
     }
 
