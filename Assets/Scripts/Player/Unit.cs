@@ -10,6 +10,7 @@ public class Unit : MonoBehaviour
 
 
     [Header("Settings")]
+    [SerializeField] private float angularVelocity = 5f;
     private float currentHealth;
     public float CurrentHealth
     {
@@ -21,7 +22,7 @@ public class Unit : MonoBehaviour
         {
             if (value <= 0f)
             {
-                DestroySelf();
+                Elimination();
                 currentHealth = 0f;
                 return;
             }
@@ -51,7 +52,7 @@ public class Unit : MonoBehaviour
     public void Initialize(HordeFormation hordeFormation)
     {
         this.hordeFormation = hordeFormation;
-        this.baseController = hordeFormation.baseController;
+        baseController = hordeFormation.baseController;
     }
 
     
@@ -68,7 +69,6 @@ public class Unit : MonoBehaviour
     }
 
 
-    [SerializeField] private float angularVelocity = 5f;
     private void IndependentRotationHandler()
     {
         if (baseController != null && baseController.GetRotation() != Vector3.zero)
@@ -137,9 +137,8 @@ public class Unit : MonoBehaviour
         CurrentHealth -= dmgAmt;
     }
 
-    private void DestroySelf()
+    private void Elimination()
     {
         hordeFormation.RemoveUnit(this.transform);
-        Destroy(this.gameObject);
     }
 }

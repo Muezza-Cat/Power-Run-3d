@@ -26,11 +26,14 @@ public class HordeFormation : MonoBehaviour
     private float halfOfUnitWidth;
     private float unitCount;
 
+    private float unitMoveSpeed;
+    private float moraleCalculationCooldown = 0.2f;
+    private float moraleCalculationElapsedTime = 0f;
+
     [Header("Collections")]
     private List<Vector3> points;
     private List<Transform> units;
     private List<float> distanceFromPoints;
-
 
 
 
@@ -48,13 +51,45 @@ public class HordeFormation : MonoBehaviour
 
     private void Start()
     {
-        //UpdateUnitDepth();
-        EvaluatePoints(true);
+        EvaluatePoints();
+    }
+
+    private void Update()
+    {
+        CalculateHordeMorale();
+        if (units.Count < 25) SpawnUnits(transform.TransformPoint(points[units.Count]));
+
+        for (int i = 0; i < units.Count; i++)
+        {
+            Transform unit = units[i];
+
+            if (units.Count > points.Count) return;
+
+            Vector3 worldPoint = transform.TransformPoint(points[i]); //Convert to world space;
+
+
+            unitMoveSpeed = baseController.GetMoveSpeed();
+            //unitMoveSpeed = (Vector3.Distance(unit.position, transform.TransformPoint(points[0])) > distanceFromPoints[i]) ? Random.Range(walkSpeed, runSpeed) : walkSpeed;
+
+            //Position
+            unit.position = Vector3.MoveTowards(unit.position, worldPoint, unitMoveSpeed * Time.deltaTime);
+        }
+    }
+    //Testing
+    private float elapsedSpawnTime = 0f;
+    private void SpawnUnits(Vector3 spawnPosition)
+    {
+        elapsedSpawnTime += Time.deltaTime;
+        if (elapsedSpawnTime < 0.5f) return;
+        elapsedSpawnTime = 0f;
+
+        AddUnit(spawnPosition);
     }
 
 
-    
-    private void EvaluatePoints(bool spawnInitialUnits) //Fixed Points; 
+
+    //Unit position specification;
+    private void EvaluatePoints() 
     {
         for (float z = 0; z > -numberOfRows; z--)
         {
@@ -76,28 +111,16 @@ public class HordeFormation : MonoBehaviour
 
                 if (units.Count < startingUnitsCount)
                 {
-                    SpawnInitialUnits();
+                    GameObject unitToSpawn = ObjectPooler.Instance.SpawnUnit(transform.TransformPoint(position), Quaternion.identity, this);
+                    units.Add(unitToSpawn.transform);
+
+                    unitToSpawn.layer = lookTransform.gameObject.layer;
+                    unitToSpawn.GetComponent<Unit>().Initialize(this);
                 }
             }
         }
     }
 
-
-    private void SpawnInitialUnits()
-    {
-        Unit unit = Instantiate(unitPrefab, transform.TransformPoint(points[0]), transform.rotation).GetComponent<Unit>();
-        unit.Initialize(this);
-
-        unit.gameObject.layer = lookTransform.gameObject.layer;
-        units.Add(unit.transform);
-    }
-
-
-    //private int UpdateUnitDepth()
-    //{
-    //    numberOfRows = Mathf.CeilToInt(unitCount / (float) numberOfColumns);
-    //    return numberOfRows;
-    //}
 
     private Vector3 GetSlotJitter() //Noise
     {
@@ -105,70 +128,46 @@ public class HordeFormation : MonoBehaviour
         return new Vector3(offset.x, 0f, offset.y);
     }
 
-
-
-
     //Addition and Removal;
-    public void AddNewRecruit(Transform newRecruit)
+    public void AddUnit(Vector3 vacantPos)
     {
-        units.Add(newRecruit);
+        GameObject unitToAdd = ObjectPooler.Instance.SpawnUnit(vacantPos, Quaternion.identity, this);
+        unitToAdd.layer = lookTransform.gameObject.layer;
+        units.Add(unitToAdd.transform);
 
-        Unit unit = newRecruit.GetComponent<Unit>();
+        Unit unit = unitToAdd.GetComponent<Unit>();
         unit.Initialize(this);
         
         unitCount++;
     }
-
-
     public void RemoveUnit(Transform unit)
     {
         units.Remove(unit);
+        ObjectPooler.Instance.RemoveUnit(unit.gameObject);
+
+        unit.gameObject.layer = 0;
+
         unitCount--;
     }
-    
-   
-
-    private float unitMoveSpeed;
-
-
-    private void Update()
-    {
-        CalculateHordeMorale();
-
-        for (int i = 0; i < units.Count; i++)
-        {
-            Transform unit = units[i];
-
-            if (units.Count > points.Count) return;
-
-            Vector3 worldPoint = transform.TransformPoint(points[i]); //Convert to world space;
-
-
-            unitMoveSpeed = baseController.GetMoveSpeed();
-            //unitMoveSpeed = (Vector3.Distance(unit.position, transform.TransformPoint(points[0])) > distanceFromPoints[i]) ? Random.Range(walkSpeed, runSpeed) : walkSpeed;
-
-            //Position
-            unit.position = Vector3.MoveTowards(unit.position, worldPoint, unitMoveSpeed * Time.deltaTime);
-        }
-    }
-
-    private float moraleCalculationCooldown = 0.2f;
-    private float elapsedTime = 0f;
     private void CalculateHordeMorale()
     {
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime >= moraleCalculationCooldown && unitCount >= 0)
+        moraleCalculationElapsedTime += Time.deltaTime;
+        if (moraleCalculationElapsedTime >= moraleCalculationCooldown && unitCount >= 0)
         {
-            elapsedTime = 0f;
+            moraleCalculationElapsedTime = 0f;
             int quotient = Mathf.FloorToInt(unitCount / 10f);
 
             float additionalMorale = (quotient == 0) ? 0f : quotient * EnemyManager.Instance.unitGroupMorale;
             hordeMorale = (units.Count * EnemyManager.Instance.singleUnitMorale) + additionalMorale;
         }
     }
-
     public int GetUnitCount()
     {
         return units.Count;
+    }
+
+    public Transform GetLookTransform()
+    {
+        return lookTransform;
     }
 }

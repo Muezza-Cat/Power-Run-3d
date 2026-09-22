@@ -40,9 +40,6 @@ public class GameManager : MonoBehaviour
     }
 
 
-
-
-
     public void Update()
     {
         switch (state)
@@ -62,9 +59,6 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
-
-
-
 
 
     public void ToggleGameState()

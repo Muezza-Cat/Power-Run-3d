@@ -56,9 +56,6 @@ public class EnemyController : BaseController
     {
         decision = Decision.Ignore;
         path = new NavMeshPath();
-
-        Debug.Log("Difficulty Mode: " + mode);
-        Debug.Log("Current Decision: " + decision);
     }
 
     
@@ -242,24 +239,19 @@ public class EnemyController : BaseController
     }
 
 
+    public void SetDifficultyMode(DifficultyMode.DifficultyModes mode)
+    {
+        this.mode = mode;
+    }
+
+
     public override Vector3 GetRotation()
     {
         return agent.transform.eulerAngles;
     }
 
-    public override BaseController GetController()
-    {
-        return this;
-    }
-
     public override float GetMoveSpeed()
     {
         return agent.speed;
-    }
-
-
-    public void SetDifficultyMode(DifficultyMode.DifficultyModes mode)
-    {
-        this.mode = mode;
     }
 }
