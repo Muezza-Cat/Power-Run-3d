@@ -32,7 +32,7 @@ public class PlayerController : BaseController
     private void MovementHandler()
     {
         if (InputManager.Instance.GetMoveDirection() == Vector2.zero) return;
-        moveDirection = new Vector3(InputManager.Instance.GetMoveDirection().x, 0f, InputManager.Instance.GetMoveDirection().y);
+        moveDirection = new Vector3(-InputManager.Instance.GetMoveDirection().y, 0f, InputManager.Instance.GetMoveDirection().x);
         controller.Move(moveDirection * moveSpeed * Time.deltaTime);
     }
 

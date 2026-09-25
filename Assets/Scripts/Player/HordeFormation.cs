@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 
 
@@ -19,8 +20,8 @@ public class HordeFormation : MonoBehaviour
     [SerializeField] private int startingUnitsCount = 4;
     public int numberOfColumns { get; private set; } = 5; //X-Axis;
     public int numberOfRows { get; private set; } = 5; //Z-Axis;
-    public float unitSpacingX { get; private set; } = 1f;
-    public float unitSpacingZ { get; private set; } = 1f;
+    public float unitSpacingX { get; private set; } = 2f;
+    public float unitSpacingZ { get; private set; } = 2f;
     [SerializeField, Range(0, 1)] private float formationJitter = 0.3f; //Noise;
 
     private float halfOfUnitWidth;
@@ -34,6 +35,10 @@ public class HordeFormation : MonoBehaviour
     private List<Vector3> points;
     private List<Transform> units;
     private List<float> distanceFromPoints;
+    private List<Flag> occupiedFlags;
+
+    private float score;
+    [SerializeField] private TextMeshProUGUI scoreText;
 
 
 
@@ -42,6 +47,7 @@ public class HordeFormation : MonoBehaviour
         points = new List<Vector3>();
         units = new List<Transform>();
         distanceFromPoints = new List<float>();
+        occupiedFlags = new List<Flag>();
 
         halfOfUnitWidth = Mathf.CeilToInt((numberOfColumns - 1) / 2f);
         unitCount = startingUnitsCount;
@@ -56,8 +62,10 @@ public class HordeFormation : MonoBehaviour
 
     private void Update()
     {
+        ReturnToHome();
         CalculateHordeMorale();
-        if (units.Count < 25) SpawnUnits(transform.TransformPoint(points[units.Count]));
+        CalculateScore();
+        scoreText.text = Mathf.FloorToInt(score).ToString();
 
         for (int i = 0; i < units.Count; i++)
         {
@@ -75,17 +83,6 @@ public class HordeFormation : MonoBehaviour
             unit.position = Vector3.MoveTowards(unit.position, worldPoint, unitMoveSpeed * Time.deltaTime);
         }
     }
-    //Testing
-    private float elapsedSpawnTime = 0f;
-    private void SpawnUnits(Vector3 spawnPosition)
-    {
-        elapsedSpawnTime += Time.deltaTime;
-        if (elapsedSpawnTime < 0.5f) return;
-        elapsedSpawnTime = 0f;
-
-        AddUnit(spawnPosition);
-    }
-
 
 
     //Unit position specification;
@@ -169,5 +166,31 @@ public class HordeFormation : MonoBehaviour
     public Transform GetLookTransform()
     {
         return lookTransform;
+    }
+
+    private void ReturnToHome()
+    {
+        if (units.Count == 0)
+        {
+            baseController.transform.position = GameplayManager.Instance.GetHomeTransform(this).position;
+            baseController.gameObject.SetActive(false);
+        }
+    }
+
+    public void AddFlag(Flag flag)
+    {
+        occupiedFlags.Add(flag);
+    }
+    public void RemoveFlag(Flag flag)
+    {
+        occupiedFlags.Remove(flag);
+    }
+
+    private void CalculateScore()
+    {
+        foreach (Flag flag in occupiedFlags)
+        {
+            score += (flag.scorePerMinute * Time.deltaTime) / 60f;
+        }
     }
 }
