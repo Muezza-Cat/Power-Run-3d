@@ -47,7 +47,7 @@ public class Flag : MonoBehaviour
 
     private void DetectHordeAroundFlag()
     {
-        if (hordeNearby.Count == EnemyManager.Instance.hordeFormations.Count) return;
+        if (hordeNearby.Count == GameplayManager.Instance.hordeFormations.Count) return;
         hordeNearby.Clear();
         Collider[] unitsNearby = Physics.OverlapSphere(transform.position, flagCaptureRadius);
         foreach (Collider collider in unitsNearby)

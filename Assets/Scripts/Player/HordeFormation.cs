@@ -9,25 +9,42 @@ public class HordeFormation : MonoBehaviour
     [Header("Important")]
     public LayerMask enemyLayer;
     public float hordeMorale { get; private set; }
+    public int coins
+    {
+        get
+        {
+            return coins;
+        }
+        set
+        {
+            if (value < 0)
+            {
+                Debug.Log("Insufficient coins");
+                return;
+            }
+            coins = value;
+        }
+    }
     [HideInInspector] public BaseController baseController; //Parent
 
 
     [Header("Reference")]
-    [SerializeField] private Transform unitPrefab;
     [SerializeField] private Transform lookTransform;
 
     [Header("Setting")]
     [SerializeField] private int startingUnitsCount = 4;
     public int numberOfColumns { get; private set; } = 5; //X-Axis;
     public int numberOfRows { get; private set; } = 5; //Z-Axis;
-    public float unitSpacingX { get; private set; } = 2f;
-    public float unitSpacingZ { get; private set; } = 2f;
+    public float unitSpacingX { get; private set; }
+    [SerializeField] private float unitSpacingX_Axis = 1f;
+    public float unitSpacingZ { get; private set; }
+    [SerializeField] private float unitSpacingZ_Axis = 1f;
+
     [SerializeField, Range(0, 1)] private float formationJitter = 0.3f; //Noise;
 
     private float halfOfUnitWidth;
     private float unitCount;
 
-    private float unitMoveSpeed;
     private float moraleCalculationCooldown = 0.2f;
     private float moraleCalculationElapsedTime = 0f;
 
@@ -37,7 +54,7 @@ public class HordeFormation : MonoBehaviour
     private List<float> distanceFromPoints;
     private List<Flag> occupiedFlags;
 
-    private float score;
+    public float score { get; set; }
     [SerializeField] private TextMeshProUGUI scoreText;
 
 
@@ -52,6 +69,9 @@ public class HordeFormation : MonoBehaviour
         halfOfUnitWidth = Mathf.CeilToInt((numberOfColumns - 1) / 2f);
         unitCount = startingUnitsCount;
 
+        unitSpacingX = unitSpacingX_Axis;
+        unitSpacingZ = unitSpacingZ_Axis;
+
         baseController = GetComponent<BaseController>();
     }
 
@@ -64,23 +84,34 @@ public class HordeFormation : MonoBehaviour
     {
         ReturnToHome();
         CalculateHordeMorale();
-        CalculateScore();
-        scoreText.text = Mathf.FloorToInt(score).ToString();
+        SetUnitDestination();
+        if (scoreText != null) scoreText.text = Mathf.FloorToInt(score).ToString();
 
+        //for (int i = 0; i < units.Count; i++)
+        //{
+        //    Transform unit = units[i];
+
+        //    if (units.Count > points.Count) return;
+
+        //    Vector3 worldPoint = transform.TransformPoint(points[i]); //Convert to world space;
+
+
+        //    unitMoveSpeed = baseController.GetMoveSpeed();
+        //    //unitMoveSpeed = (Vector3.Distance(unit.position, transform.TransformPoint(points[0])) > distanceFromPoints[i]) ? Random.Range(walkSpeed, runSpeed) : walkSpeed;
+
+        //    //Position
+        //    unit.position = Vector3.MoveTowards(unit.position, worldPoint, unitMoveSpeed * Time.deltaTime);
+        //}
+    }
+
+    //Testing
+    private void SetUnitDestination()
+    {
         for (int i = 0; i < units.Count; i++)
         {
-            Transform unit = units[i];
+            Transform unit = units[i].transform;
 
-            if (units.Count > points.Count) return;
-
-            Vector3 worldPoint = transform.TransformPoint(points[i]); //Convert to world space;
-
-
-            unitMoveSpeed = baseController.GetMoveSpeed();
-            //unitMoveSpeed = (Vector3.Distance(unit.position, transform.TransformPoint(points[0])) > distanceFromPoints[i]) ? Random.Range(walkSpeed, runSpeed) : walkSpeed;
-
-            //Position
-            unit.position = Vector3.MoveTowards(unit.position, worldPoint, unitMoveSpeed * Time.deltaTime);
+            unit.GetComponent<Unit>().targetPosition = transform.TransformPoint(points[i]);
         }
     }
 
@@ -109,6 +140,7 @@ public class HordeFormation : MonoBehaviour
                 if (units.Count < startingUnitsCount)
                 {
                     GameObject unitToSpawn = ObjectPooler.Instance.SpawnUnit(transform.TransformPoint(position), Quaternion.identity, this);
+                    unitToSpawn.GetComponent<Unit>().targetPosition = position;
                     units.Add(unitToSpawn.transform);
 
                     unitToSpawn.layer = lookTransform.gameObject.layer;
@@ -140,7 +172,7 @@ public class HordeFormation : MonoBehaviour
     public void RemoveUnit(Transform unit)
     {
         units.Remove(unit);
-        ObjectPooler.Instance.RemoveUnit(unit.gameObject);
+        ObjectPooler.Instance.DespawnUnit(unit.gameObject);
 
         unit.gameObject.layer = 0;
 
@@ -186,11 +218,8 @@ public class HordeFormation : MonoBehaviour
         occupiedFlags.Remove(flag);
     }
 
-    private void CalculateScore()
+    public List<Flag> GetOccupiedFlags()
     {
-        foreach (Flag flag in occupiedFlags)
-        {
-            score += (flag.scorePerMinute * Time.deltaTime) / 60f;
-        }
+        return occupiedFlags;
     }
 }

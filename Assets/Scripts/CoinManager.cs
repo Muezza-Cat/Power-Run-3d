@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class CoinManager : MonoBehaviour
 {
@@ -34,11 +35,11 @@ public class CoinManager : MonoBehaviour
     }
 
 
-    private void SpawnCoin(Vector3 randomPosition)
+    private void SpawnCoin(Vector3 spawnPosition)
     {
-        if (coinSpawned < maxNumberOfCoinsAllowed)
+        if (coinSpawned < maxNumberOfCoinsAllowed && spawnPosition != Vector3.zero)
         {
-            ObjectPooler.Instance.SpawnCoin(randomPosition, Quaternion.identity);
+            ObjectPooler.Instance.SpawnCoin(spawnPosition, Quaternion.identity);
             coinSpawned++;
         }
     }
@@ -46,13 +47,19 @@ public class CoinManager : MonoBehaviour
 
     public void DespawnCoin(GameObject coinToDespawn)
     {
-        ObjectPooler.Instance.RemoveCoin(coinToDespawn);
+        ObjectPooler.Instance.DespawnCoin(coinToDespawn);
         coinSpawned--;
     }
 
     private Vector3 RandomPositionCalculator()
     {
         Vector3 randomPosition = new Vector3(Random.Range(-20f, 20f), 1f, Random.Range(-20f, 20f));
-        return randomPosition;
+        Vector3 finalPosition = Vector3.zero;
+
+        if (NavMesh.SamplePosition(randomPosition, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+        {
+            finalPosition = hit.position;
+        }
+        return finalPosition;
     }
 }

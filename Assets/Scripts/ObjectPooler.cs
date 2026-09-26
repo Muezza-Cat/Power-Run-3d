@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -39,22 +40,34 @@ public class ObjectPooler : MonoBehaviour
 
         bigPool = new Dictionary<PoolKey, Queue<GameObject>>();
 
-        numberOfHordes = EnemyManager.Instance.hordeFormations.Count;
+        numberOfHordes = GameplayManager.Instance.hordeFormations.Count;
         numOfObjectsToPool = numberOfHordes * maxUnitCapacityInHorde;
 
         bigPool.Add(PoolKey.Unit, new Queue<GameObject>());
         bigPool.Add(PoolKey.Coin, new Queue<GameObject>());
 
+
         for (int i = 0; i < numOfObjectsToPool; i++)
         {
+            if (unit == null)
+            {
+                Debug.LogWarning("Null reference of UnitPrefab in ObjectPooler.cs");
+                break;
+            }
             GameObject obj = Instantiate(unit, transform.position, Quaternion.identity);
             obj.SetActive(false);
 
             bigPool[PoolKey.Unit].Enqueue(obj);
         }
 
+
         for (int i = 0; i < totalNumOfCoins; i++)
         {
+            if (coin == null)
+            {
+                Debug.LogWarning("Null reference of CoinPrefab in ObjectPooler.cs");
+                break;
+            }
             GameObject obj = Instantiate(coin, transform.position, Quaternion.identity);
             obj.SetActive(false);
 
@@ -88,7 +101,7 @@ public class ObjectPooler : MonoBehaviour
         return unitToSpawn;
     }
 
-    public void RemoveUnit(GameObject unitToEnqueue)
+    public void DespawnUnit(GameObject unitToEnqueue)
     {
         unitToEnqueue.transform.position = Vector3.zero;
         unitToEnqueue.transform.rotation = Quaternion.identity;
@@ -107,7 +120,7 @@ public class ObjectPooler : MonoBehaviour
         coinToSpawn.transform.rotation = spawnRotation;
     }
 
-    public void RemoveCoin(GameObject coinToPool)
+    public void DespawnCoin(GameObject coinToPool)
     {
         coinToPool.transform.position = Vector3.zero;
         coinToPool.transform.rotation = Quaternion.identity;

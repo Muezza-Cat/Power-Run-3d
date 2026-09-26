@@ -7,8 +7,12 @@ public class EnemyManager : MonoBehaviour
     //Singleton
     public static EnemyManager Instance { get; private set; }
 
+    [Header("LayerMask")]
+    public LayerMask interactableLayers;
+
+
     [SerializeField] private List<DifficultyMode> difficultyModes;
-    public List<HordeFormation> hordeFormations;
+    //public List<HordeFormation> hordeFormations; 
     public float singleUnitMorale = 2f;
     public float unitGroupMorale = 10f; //if unit Count is in the multiple of 10;
 

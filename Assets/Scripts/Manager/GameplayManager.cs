@@ -1,7 +1,9 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
+
+
 
 public class GameplayManager : MonoBehaviour
 {
@@ -19,8 +21,9 @@ public class GameplayManager : MonoBehaviour
 
 
     [Header("Collection")]
-    [SerializeField] private List<HordeHome> horde_Homes_List;
+    [SerializeField] private List<HordeHome> hordeHomeList;
     [SerializeField] private List<Transform> flagList;
+    [HideInInspector] public List<HordeFormation> hordeFormations;
 
 
     [Header("Settings")]
@@ -36,10 +39,18 @@ public class GameplayManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+
+        hordeFormations = new List<HordeFormation>();
+        foreach (HordeHome hordeHome in hordeHomeList)
+        {
+            hordeFormations.Add(hordeHome.hordeFormation);
+        }
     }
 
     private void Update()
     {
+        CalculateScore();
+
         gameplayTime -= Time.deltaTime;
         if (gameplayTime <= 0f)
         {
@@ -54,9 +65,9 @@ public class GameplayManager : MonoBehaviour
     
     private void DisplayWinner()
     {
-        winner = EnemyManager.Instance.hordeFormations[0];
+        winner = hordeFormations[0];
         highestMorale = winner.hordeMorale;
-        foreach (HordeFormation hordeFormation in EnemyManager.Instance.hordeFormations)
+        foreach (HordeFormation hordeFormation in hordeFormations)
         {
             if (hordeFormation.hordeMorale > highestMorale)
             {
@@ -64,7 +75,7 @@ public class GameplayManager : MonoBehaviour
                 highestMorale = winner.hordeMorale;
             }
         }
-        winnerText.text = winner.name;
+        if (winnerText != null) winnerText.text = winner.name;
     }
 
 
@@ -72,7 +83,7 @@ public class GameplayManager : MonoBehaviour
     {
         Transform home = null;
 
-        foreach (HordeHome hordeHome in horde_Homes_List)
+        foreach (HordeHome hordeHome in hordeHomeList)
         {
             if (hordeHome.hordeFormation == hordeFormation)
             {
@@ -80,5 +91,17 @@ public class GameplayManager : MonoBehaviour
             }
         }
         return home;
+    }
+    private void CalculateScore()
+    {
+        foreach (HordeFormation hordeFormation in hordeFormations)
+        {
+            if (hordeFormation.GetOccupiedFlags().Count == 0) continue;
+
+            foreach (Flag flag in hordeFormation.GetOccupiedFlags())
+            {
+                hordeFormation.score += ((flag.scorePerMinute + baseFlagSPM) * Time.deltaTime) / 60f;
+            }
+        }
     }
 }

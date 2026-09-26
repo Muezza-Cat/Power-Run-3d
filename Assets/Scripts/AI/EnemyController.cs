@@ -56,6 +56,8 @@ public class EnemyController : BaseController
     {
         decision = Decision.Ignore;
         path = new NavMeshPath();
+
+        Debug.Log((int)mode);
     }
 
     
@@ -66,6 +68,7 @@ public class EnemyController : BaseController
         if (updateMethodElapsedTime < updateMethodCooldownTime) return;
         updateMethodElapsedTime = 0f;
 
+        if (mode == 0) Debug.LogWarning("No Mode set for the EnemyController " + this.name);
         switch (mode)
         {
             default:
@@ -108,7 +111,7 @@ public class EnemyController : BaseController
     
     private void AvoidStrongEnemies()
     {
-        foreach (HordeFormation enemyHordeFormation in EnemyManager.Instance.hordeFormations)
+        foreach (HordeFormation enemyHordeFormation in GameplayManager.Instance.hordeFormations)
         {
             if (enemyHordeFormation == enemyControllerHordeFormation) continue; //Except this controller;
             if (Vector3.Distance(transform.position, enemyHordeFormation.transform.position) > safeDistance) continue; //Enemy very close;
@@ -195,7 +198,7 @@ public class EnemyController : BaseController
     private void ScanThreatsNearby() //needs optimization;
     {
         threatNearby.Clear();
-        foreach (HordeFormation enemyHordeFormation in EnemyManager.Instance.hordeFormations)
+        foreach (HordeFormation enemyHordeFormation in GameplayManager.Instance.hordeFormations)
         {
             if (enemyHordeFormation == enemyControllerHordeFormation) continue;
             if (IsInThreatRadii(enemyHordeFormation))
@@ -248,11 +251,20 @@ public class EnemyController : BaseController
 
     public override Vector3 GetRotation()
     {
-        return agent.transform.eulerAngles;
+        //return agent.transform.eulerAngles;
+
+        Quaternion rotation = Quaternion.LookRotation(agent.destination - agent.transform.position);
+        return rotation.eulerAngles;
     }
 
     public override float GetMoveSpeed()
     {
         return agent.speed;
+    }
+
+
+    public override LayerMask GetInteractableLayers()
+    {
+        return EnemyManager.Instance.interactableLayers;
     }
 }

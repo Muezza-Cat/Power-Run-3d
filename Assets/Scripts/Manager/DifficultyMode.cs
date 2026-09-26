@@ -5,7 +5,7 @@ public struct DifficultyMode
 {
     public enum DifficultyModes
     {
-        Easy,
+        Easy = 1,
         Medium,
         Hard,
     }

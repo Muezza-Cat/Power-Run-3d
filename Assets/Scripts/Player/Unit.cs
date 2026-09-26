@@ -5,12 +5,14 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
     [Header("Reference")]
-    public HordeFormation hordeFormation;
+    [HideInInspector] public HordeFormation hordeFormation;
     [HideInInspector] public BaseController baseController;
+    private CapsuleCollider capsuleCollider;
 
 
     [Header("Settings")]
-    [SerializeField] private float angularVelocity = 5f;
+    [SerializeField] private float angularVelocity = 10f;
+    public Vector3 targetPosition;
     private float currentHealth;
     public float CurrentHealth
     {
@@ -38,6 +40,16 @@ public class Unit : MonoBehaviour
     private float attackRange = 1f;
     public float damageAmount = 1f;
 
+    //Linear Velocity
+    private float crestMoveSpeed = 8f;
+    private float troughMoveSpeed = 3f;
+    private float currentMoveSpeed;
+
+    //Angular Velocity
+    private float crestAngularVelocity = 15f;
+    private float troughAngularVelocity = 6f;
+    private float currentAngularVelocity;
+
     [Header("Flag")]
     public bool isDetected = false;
 
@@ -45,7 +57,11 @@ public class Unit : MonoBehaviour
 
     private void Awake()
     {
-        currentHealth = Random.Range(0.5f, 1.5f);
+        capsuleCollider = GetComponent<CapsuleCollider>();
+
+        CurrentHealth = Random.Range(0.5f, 1.5f);
+        currentMoveSpeed = Random.Range(troughMoveSpeed, crestMoveSpeed);
+        currentAngularVelocity = Random.Range(troughAngularVelocity, crestAngularVelocity);
         elapsedTime = hitCooldown;
     }
 
@@ -65,7 +81,60 @@ public class Unit : MonoBehaviour
             FightOnlyAtSight();
         }
 
+        IndependentMovementHandler();
         IndependentRotationHandler();
+
+        UpdateLinearAndAngularVelocity();
+    }
+
+    
+
+
+    private bool canMove;
+
+    private float radius = 0.5f;
+    private float castDistance = 0.1f;
+
+    private float teleportationTime = 2f;
+    private float teleportationElapsedTime = 0f;
+    private void IndependentMovementHandler()
+    {
+        Vector3 moveDirection = (targetPosition - transform.position).normalized;
+        Vector3 p1 = transform.position + Vector3.up * +0.5f;
+        Vector3 p2 = transform.position + Vector3.up * -0.5f;
+        canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirection, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
+
+        if (canMove)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * currentMoveSpeed);
+            return;
+        }
+        else if (!canMove)
+        {
+            Vector3 moveDirectionX = new Vector3(moveDirection.x, 0f, 0f).normalized;
+            canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirectionX, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
+
+            if (canMove)
+            {
+                transform.position += moveDirectionX * Time.deltaTime * currentMoveSpeed;
+            }
+            else
+            {
+                Vector3 moveDirectionZ = new Vector3(0f, 0f, moveDirection.z).normalized;
+                canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirectionZ, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
+
+                if (canMove)
+                {
+                    transform.position += moveDirectionZ * Time.deltaTime * currentMoveSpeed;
+                }
+                else
+                {
+                    teleportationElapsedTime += Time.deltaTime;
+                    if (teleportationElapsedTime < teleportationTime) return;
+                    teleportationElapsedTime = 0f;
+                }
+            }
+        }
     }
 
 
@@ -73,10 +142,21 @@ public class Unit : MonoBehaviour
     {
         if (baseController != null && baseController.GetRotation() != Vector3.zero)
         {
-            transform.eulerAngles = new Vector3(0f, Mathf.LerpAngle(transform.eulerAngles.y, baseController.GetRotation().y, Time.deltaTime * angularVelocity), 0f);
+            transform.eulerAngles = new Vector3(0f, Mathf.LerpAngle(transform.eulerAngles.y, baseController.GetRotation().y, Time.deltaTime * currentAngularVelocity), 0f);
         }
     }
 
+
+    private float velocityUpdateCooldown = 0.5f;
+    private float velocityUpdateElapsedTime = 0f;
+    private void UpdateLinearAndAngularVelocity()
+    {
+        velocityUpdateElapsedTime += Time.deltaTime;
+        if (velocityUpdateElapsedTime < velocityUpdateCooldown) return;
+
+        currentMoveSpeed = Random.Range(troughMoveSpeed, crestMoveSpeed);
+        currentAngularVelocity = Random.Range(troughAngularVelocity, crestAngularVelocity);
+    }
 
 
     private void FightOnlyAtSight()
@@ -93,6 +173,7 @@ public class Unit : MonoBehaviour
         {
             unit.isDetected = true;
             unit.TakeDamage(damageAmount);
+
 
             if (!isDetected)
             {
