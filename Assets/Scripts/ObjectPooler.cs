@@ -20,7 +20,7 @@ public class ObjectPooler : MonoBehaviour
 
     [Header("Settings")]
     private int numberOfHordes;
-    [SerializeField] private readonly int maxUnitCapacityInHorde = 25;
+    [SerializeField] private int maxUnitCapacityInHorde = 25;
     private int numOfObjectsToPool;
 
     private int totalNumOfCoins = 100;
@@ -40,7 +40,7 @@ public class ObjectPooler : MonoBehaviour
 
         bigPool = new Dictionary<PoolKey, Queue<GameObject>>();
 
-        numberOfHordes = GameplayManager.Instance.hordeFormations.Count;
+        numberOfHordes = GameplayManager.Instance.GetHordeFormation().Count;
         numOfObjectsToPool = numberOfHordes * maxUnitCapacityInHorde;
 
         bigPool.Add(PoolKey.Unit, new Queue<GameObject>());

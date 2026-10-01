@@ -7,6 +7,7 @@ public class Unit : MonoBehaviour
     [Header("Reference")]
     [HideInInspector] public HordeFormation hordeFormation;
     [HideInInspector] public BaseController baseController;
+    [SerializeField] private MeshRenderer meshRenderer;
     private CapsuleCollider capsuleCollider;
 
 
@@ -69,17 +70,15 @@ public class Unit : MonoBehaviour
     {
         this.hordeFormation = hordeFormation;
         baseController = hordeFormation.baseController;
+
+        meshRenderer.material = GameplayManager.Instance.GetUnitMaterial(hordeFormation);
     }
 
     
 
     private void Update()
     {
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime >= hitCooldown)
-        {
-            FightOnlyAtSight();
-        }
+        FightOnlyAtSight();
 
         IndependentMovementHandler();
         IndependentRotationHandler();
@@ -161,7 +160,6 @@ public class Unit : MonoBehaviour
 
     private void FightOnlyAtSight()
     {
-        elapsedTime = 0f;
         Collider[] collider = Physics.OverlapSphere(transform.position, attackRange, hordeFormation.enemyLayer, QueryTriggerInteraction.Ignore);
 
         if (collider == null || collider.Length == 0) return;

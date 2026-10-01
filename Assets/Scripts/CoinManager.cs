@@ -9,7 +9,7 @@ public class CoinManager : MonoBehaviour
 
 
     private int coinSpawned = 0;
-    private int maxNumberOfCoinsAllowed = 100;
+    private int maxCoinSpawnLimit = 100;
 
 
     private float cooldownTime = 0.1f;
@@ -37,15 +37,14 @@ public class CoinManager : MonoBehaviour
 
     private void SpawnCoin(Vector3 spawnPosition)
     {
-        if (coinSpawned < maxNumberOfCoinsAllowed && spawnPosition != Vector3.zero)
+        if (coinSpawned < maxCoinSpawnLimit && spawnPosition != Vector3.zero)
         {
             ObjectPooler.Instance.SpawnCoin(spawnPosition, Quaternion.identity);
             coinSpawned++;
         }
     }
 
-
-    public void DespawnCoin(GameObject coinToDespawn)
+    public void DisableCoin(GameObject coinToDespawn)
     {
         ObjectPooler.Instance.DespawnCoin(coinToDespawn);
         coinSpawned--;

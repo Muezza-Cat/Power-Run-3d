@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 
@@ -6,6 +7,7 @@ public class PlayerController : BaseController
     [Header("Reference")]
     private CharacterController controller;
     [HideInInspector] public HordeFormation hordeFormation;
+    [SerializeField] private TextMeshProUGUI coinsAmountText;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 4f;
@@ -31,9 +33,12 @@ public class PlayerController : BaseController
     private void Update()
     {
         MovementHandler();
+
+        if(coinsAmountText != null) coinsAmountText.text = hordeFormation.coins.ToString();
     }
 
 
+    
 
     private void MovementHandler()
     {
@@ -89,5 +94,10 @@ public class PlayerController : BaseController
     public override LayerMask GetInteractableLayers()
     {
         return interactableLayer;
+    }
+
+    public override void RemoveDeadEnemyLayer(int layer)
+    {
+        interactableLayer &= ~(1 << layer);
     }
 }

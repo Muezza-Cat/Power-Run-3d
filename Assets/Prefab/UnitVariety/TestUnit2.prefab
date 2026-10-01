@@ -138,6 +138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Unit
   hordeFormation: {fileID: 0}
   baseController: {fileID: 0}
+  meshRenderer: {fileID: 8978837726605591674}
   angularVelocity: 10
   targetPosition: {x: 0, y: 0, z: 0}
   damageAmount: 1

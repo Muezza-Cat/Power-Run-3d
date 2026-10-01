@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+
+    //Under construction;
     public static GameManager Instance {  get; private set; }
 
     #region events

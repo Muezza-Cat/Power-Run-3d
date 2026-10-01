@@ -4,15 +4,15 @@ using System.Collections.Generic;
 
 public class EnemyManager : MonoBehaviour
 {
-    //Singleton
+    #region Singleton
     public static EnemyManager Instance { get; private set; }
-
-    [Header("LayerMask")]
-    public LayerMask interactableLayers;
+    #endregion
 
 
+    [Header("Collection")]
     [SerializeField] private List<DifficultyMode> difficultyModes;
-    //public List<HordeFormation> hordeFormations; 
+
+    [Header("Setting")]
     public float singleUnitMorale = 2f;
     public float unitGroupMorale = 10f; //if unit Count is in the multiple of 10;
 

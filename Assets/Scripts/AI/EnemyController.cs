@@ -33,12 +33,13 @@ public class EnemyController : BaseController
     [Header("Settings")]
     private HordeFormation hordeToFight;
 
-    private float updateMethodCooldownTime = 0.1f; //10 times per sec;
+    private float updateMethodCooldownTime = 0.2f; //10 times per sec;
     private float updateMethodElapsedTime = 0f;
     private float safeDistance = 10f;
     private float moraleThreshold = 1.25f;
 
-
+    [Header("LayerMask")]
+    public LayerMask interactableLayer;
 
 
 
@@ -68,6 +69,9 @@ public class EnemyController : BaseController
         if (updateMethodElapsedTime < updateMethodCooldownTime) return;
         updateMethodElapsedTime = 0f;
 
+        SelectStrategy();
+        StrategyStateMachine();
+
         if (mode == 0) Debug.LogWarning("No Mode set for the EnemyController " + this.name);
         switch (mode)
         {
@@ -81,12 +85,58 @@ public class EnemyController : BaseController
                 break;
             case DifficultyMode.DifficultyModes.Hard:
                 StateMachine(); //Handle different Decisions;
+                ScanThreatsNearby(); //Continuously scan for threats nearby;
 
-                ScanThreatsNearby();
                 if (threatNearby.Count > 0) HardBotDecisionMakingProcess();
                 else decision = Decision.Ignore;
                 break;
         }
+    }
+
+
+
+    //Strategy;
+    private enum Strategy
+    {
+        AddUnit,
+        UpgradeStats,
+    }
+    private Strategy strategy = Strategy.AddUnit;
+
+    private void SelectStrategy()
+    {
+        if (enemyControllerHordeFormation.GetUnitCount() == enemyControllerHordeFormation.GetMaxNumberOfPosition())
+        {
+            strategy = Strategy.UpgradeStats;
+        }
+        else
+        {
+            strategy = Strategy.AddUnit;
+        }
+    }
+
+    private void StrategyStateMachine()
+    {
+        switch (strategy)
+        {
+            default:
+            case Strategy.AddUnit:
+                AddUnitStrategy();
+                break;
+            case Strategy.UpgradeStats:
+                UpgradeStatsStrategy();
+                break;
+        }
+    }
+
+    private void AddUnitStrategy()
+    {
+        enemyControllerHordeFormation.AddUnit();
+    }
+
+    private void UpgradeStatsStrategy()
+    {
+        //Upgrade Stats;
     }
 
 
@@ -111,7 +161,7 @@ public class EnemyController : BaseController
     
     private void AvoidStrongEnemies()
     {
-        foreach (HordeFormation enemyHordeFormation in GameplayManager.Instance.hordeFormations)
+        foreach (HordeFormation enemyHordeFormation in GameplayManager.Instance.GetHordeFormation())
         {
             if (enemyHordeFormation == enemyControllerHordeFormation) continue; //Except this controller;
             if (Vector3.Distance(transform.position, enemyHordeFormation.transform.position) > safeDistance) continue; //Enemy very close;
@@ -189,7 +239,12 @@ public class EnemyController : BaseController
 
     private void FightThreat(HordeFormation hordeToFight)
     {
-        if (hordeToFight == null || hordeToFight.GetUnitCount() == 0) decision = Decision.Ignore;
+        if (hordeToFight == null || hordeToFight.GetUnitCount() == 0) 
+        {
+            decision = Decision.Ignore;
+            agent.ResetPath();
+            return;
+        }
         agent.SetDestination(hordeToFight.transform.position);
     }
 
@@ -198,7 +253,7 @@ public class EnemyController : BaseController
     private void ScanThreatsNearby() //needs optimization;
     {
         threatNearby.Clear();
-        foreach (HordeFormation enemyHordeFormation in GameplayManager.Instance.hordeFormations)
+        foreach (HordeFormation enemyHordeFormation in GameplayManager.Instance.GetHordeFormation())
         {
             if (enemyHordeFormation == enemyControllerHordeFormation) continue;
             if (IsInThreatRadii(enemyHordeFormation))
@@ -253,7 +308,7 @@ public class EnemyController : BaseController
     {
         //return agent.transform.eulerAngles;
 
-        Quaternion rotation = Quaternion.LookRotation(agent.destination - agent.transform.position);
+        Quaternion rotation = Quaternion.LookRotation((agent.destination - agent.transform.position).normalized);
         return rotation.eulerAngles;
     }
 
@@ -265,6 +320,11 @@ public class EnemyController : BaseController
 
     public override LayerMask GetInteractableLayers()
     {
-        return EnemyManager.Instance.interactableLayers;
+        return interactableLayer;
+    }
+
+    public override void RemoveDeadEnemyLayer(int layer)
+    {
+        interactableLayer &= ~(1 << layer);
     }
 }

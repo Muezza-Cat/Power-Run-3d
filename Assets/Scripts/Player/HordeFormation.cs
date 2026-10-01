@@ -1,30 +1,22 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
+using System;
 
 
 
 public class HordeFormation : MonoBehaviour
 {
+    #region Event
+    public event Action<int, HordeFormation> OnDisableUpdateEnemyLayer;
+    public event Action<HordeFormation> UpdatePlayerLives;
+    #endregion
+
     [Header("Important")]
     public LayerMask enemyLayer;
     public float hordeMorale { get; private set; }
-    public int coins
-    {
-        get
-        {
-            return coins;
-        }
-        set
-        {
-            if (value < 0)
-            {
-                Debug.Log("Insufficient coins");
-                return;
-            }
-            coins = value;
-        }
-    }
+    public int coins { get; set; }
+    public int coinsAllTime;
     [HideInInspector] public BaseController baseController; //Parent
 
 
@@ -33,6 +25,7 @@ public class HordeFormation : MonoBehaviour
 
     [Header("Setting")]
     [SerializeField] private int startingUnitsCount = 4;
+    public int perUnitCost { get; private set; } = 5;
     public int numberOfColumns { get; private set; } = 5; //X-Axis;
     public int numberOfRows { get; private set; } = 5; //Z-Axis;
     public float unitSpacingX { get; private set; }
@@ -43,7 +36,6 @@ public class HordeFormation : MonoBehaviour
     [SerializeField, Range(0, 1)] private float formationJitter = 0.3f; //Noise;
 
     private float halfOfUnitWidth;
-    private float unitCount;
 
     private float moraleCalculationCooldown = 0.2f;
     private float moraleCalculationElapsedTime = 0f;
@@ -62,12 +54,13 @@ public class HordeFormation : MonoBehaviour
     private void Awake()
     {
         points = new List<Vector3>();
+        //points.Add(new Vector3(0f, 0f, 0f));
+
         units = new List<Transform>();
         distanceFromPoints = new List<float>();
         occupiedFlags = new List<Flag>();
 
         halfOfUnitWidth = Mathf.CeilToInt((numberOfColumns - 1) / 2f);
-        unitCount = startingUnitsCount;
 
         unitSpacingX = unitSpacingX_Axis;
         unitSpacingZ = unitSpacingZ_Axis;
@@ -82,37 +75,15 @@ public class HordeFormation : MonoBehaviour
 
     private void Update()
     {
-        ReturnToHome();
+        //ReturnToHome();
         CalculateHordeMorale();
-        SetUnitDestination();
+        AssignUnitPosition();
         if (scoreText != null) scoreText.text = Mathf.FloorToInt(score).ToString();
-
-        //for (int i = 0; i < units.Count; i++)
-        //{
-        //    Transform unit = units[i];
-
-        //    if (units.Count > points.Count) return;
-
-        //    Vector3 worldPoint = transform.TransformPoint(points[i]); //Convert to world space;
-
-
-        //    unitMoveSpeed = baseController.GetMoveSpeed();
-        //    //unitMoveSpeed = (Vector3.Distance(unit.position, transform.TransformPoint(points[0])) > distanceFromPoints[i]) ? Random.Range(walkSpeed, runSpeed) : walkSpeed;
-
-        //    //Position
-        //    unit.position = Vector3.MoveTowards(unit.position, worldPoint, unitMoveSpeed * Time.deltaTime);
-        //}
     }
 
-    //Testing
-    private void SetUnitDestination()
+    private void OnDisable()
     {
-        for (int i = 0; i < units.Count; i++)
-        {
-            Transform unit = units[i].transform;
-
-            unit.GetComponent<Unit>().targetPosition = transform.TransformPoint(points[i]);
-        }
+        OnDisableUpdateEnemyLayer?.Invoke(lookTransform.gameObject.layer, this);
     }
 
 
@@ -150,41 +121,68 @@ public class HordeFormation : MonoBehaviour
         }
     }
 
+    private void AssignUnitPosition()
+    {
+        if(units == null || points == null || points.Count == 0)
+        {
+            Debug.LogWarning("points is empty or null, please check the List");
+        }
+
+        for (int i = 0; i < units.Count; i++)
+        {
+            Unit unit = units[i].GetComponent<Unit>();
+            unit.targetPosition = transform.TransformPoint(points[i]);
+        }
+    }
+
 
     private Vector3 GetSlotJitter() //Noise
     {
-        Vector2 offset = Random.insideUnitCircle * formationJitter;
+        Vector2 offset = UnityEngine.Random.insideUnitCircle * formationJitter;
         return new Vector3(offset.x, 0f, offset.y);
     }
 
     //Addition and Removal;
-    public void AddUnit(Vector3 vacantPos)
+
+    public void AddUnitForFree()
     {
-        GameObject unitToAdd = ObjectPooler.Instance.SpawnUnit(vacantPos, Quaternion.identity, this);
+        GameObject unitToAdd = ObjectPooler.Instance.SpawnUnit(GameplayManager.Instance.GetHomeTransform(this).position, Quaternion.identity, this);
         unitToAdd.layer = lookTransform.gameObject.layer;
         units.Add(unitToAdd.transform);
 
         Unit unit = unitToAdd.GetComponent<Unit>();
         unit.Initialize(this);
-        
-        unitCount++;
+        unit.isDetected = false;
     }
+
+    public void AddUnit()
+    {
+        if (units.Count >= points.Count) return;
+
+        if (RemoveCoin(perUnitCost))
+        {
+            AddUnitForFree();
+        }
+    }
+
+    
     public void RemoveUnit(Transform unit)
     {
         units.Remove(unit);
         ObjectPooler.Instance.DespawnUnit(unit.gameObject);
 
         unit.gameObject.layer = 0;
-
-        unitCount--;
+        UpdatePlayerLives?.Invoke(this);
     }
+
+
     private void CalculateHordeMorale()
     {
         moraleCalculationElapsedTime += Time.deltaTime;
-        if (moraleCalculationElapsedTime >= moraleCalculationCooldown && unitCount >= 0)
+        if (moraleCalculationElapsedTime >= moraleCalculationCooldown && units.Count >= 0)
         {
             moraleCalculationElapsedTime = 0f;
-            int quotient = Mathf.FloorToInt(unitCount / 10f);
+            int quotient = Mathf.FloorToInt(units.Count / 10f);
 
             float additionalMorale = (quotient == 0) ? 0f : quotient * EnemyManager.Instance.unitGroupMorale;
             hordeMorale = (units.Count * EnemyManager.Instance.singleUnitMorale) + additionalMorale;
@@ -200,15 +198,7 @@ public class HordeFormation : MonoBehaviour
         return lookTransform;
     }
 
-    private void ReturnToHome()
-    {
-        if (units.Count == 0)
-        {
-            baseController.transform.position = GameplayManager.Instance.GetHomeTransform(this).position;
-            baseController.gameObject.SetActive(false);
-        }
-    }
-
+    
     public void AddFlag(Flag flag)
     {
         occupiedFlags.Add(flag);
@@ -218,8 +208,35 @@ public class HordeFormation : MonoBehaviour
         occupiedFlags.Remove(flag);
     }
 
+    public void AddCoin(int amount)
+    {
+        coins += amount;
+
+        coinsAllTime += amount;
+    }
+
+    public bool RemoveCoin(int amount)
+    {
+        bool removedCoin = false;
+        if (coins >= amount)
+        {
+            coins -= amount;
+            removedCoin = true;
+        }
+        else
+        {
+            removedCoin = false;
+        }
+        return removedCoin;
+    }
+
     public List<Flag> GetOccupiedFlags()
     {
         return occupiedFlags;
+    }
+
+    public int GetMaxNumberOfPosition()
+    {
+        return points.Count;
     }
 }
