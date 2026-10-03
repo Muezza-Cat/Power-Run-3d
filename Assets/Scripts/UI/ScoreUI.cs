@@ -3,6 +3,9 @@ using TMPro;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
+
+
+
 public class ScoreUI : MonoBehaviour
 {
     [Header("Reference")]
@@ -20,6 +23,8 @@ public class ScoreUI : MonoBehaviour
     [Header("Settings")]
     private float scoreTemplateSpacing = 10f;
     private float scoreBarMaxWidth = 500f;
+    private float highestScore = 0f;
+    private float scoreBarDisplayWidthMax;
 
 
     private void Awake()
@@ -48,8 +53,10 @@ public class ScoreUI : MonoBehaviour
         }
 
         GameplayManager.Instance.OnScoreUpdated += UpdateUIScore;
-        GameplayManager.Instance.OnScoreUpdated += UpdateScoreBar;
+        GameplayManager.Instance.OnScoreUpdated += UpdateUIScoreBar;
     }
+
+
 
     private void UpdateUIScore(List<float> scoreList)
     {
@@ -58,20 +65,16 @@ public class ScoreUI : MonoBehaviour
             scoreTextList[i].text = Mathf.FloorToInt(scoreList[i]).ToString();
         }
     }
-
-    //Testing
-    float highestScore = 0f;
-    float extremeRightValue;
-    private void UpdateScoreBar(List<float> scoreList)
+    private void UpdateUIScoreBar(List<float> scoreList)
     {
         for(int i = 0; i < scoreBarTransformList.Count; i++)
         {
             if (scoreList[i] > highestScore) highestScore = scoreList[i];
-            extremeRightValue = highestScore + 100f;
+            scoreBarDisplayWidthMax = highestScore + 100f;
 
             RectTransform rTransform = scoreBarTransformList[i];
 
-            float scoreBarWidth = (scoreList[i] / extremeRightValue) * scoreBarMaxWidth;
+            float scoreBarWidth = (scoreList[i] / scoreBarDisplayWidthMax) * scoreBarMaxWidth;
             rTransform.sizeDelta = new Vector2(scoreBarWidth + 10f, rTransform.sizeDelta.y);
         }
     }

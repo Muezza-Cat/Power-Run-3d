@@ -19,12 +19,16 @@ public static class SceneLoader
     public static void LoadScene(Scene targetScene)
     {
         SceneLoader.targetScene = targetScene;
-        SceneManager.LoadScene((int)SceneLoader.Scene.LoadingScene);
+        SceneManager.LoadScene(SceneLoader.Scene.LoadingScene.ToString());
+    }
+    public static void ReloadScene()
+    {
+        SceneManager.LoadScene(SceneLoader.Scene.LoadingScene.ToString());
     }
 
 
     public static void LoaderCallback() 
     {
-        SceneManager.LoadScene((int)SceneLoader.targetScene);
+        SceneManager.LoadScene(SceneLoader.targetScene.ToString());
     }
 }

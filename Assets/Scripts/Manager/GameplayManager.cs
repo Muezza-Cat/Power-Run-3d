@@ -34,7 +34,6 @@ public class GameplayManager : MonoBehaviour
 
 
     [Header("Settings")]
-    [SerializeField] private float gameplayTime = 6f;
     [SerializeField] private TextMeshProUGUI winnerText;
     [SerializeField] private int Lives = 4;
 
@@ -75,47 +74,35 @@ public class GameplayManager : MonoBehaviour
     {
         CalculateScore();
 
-        gameplayTime -= Time.deltaTime;
-        if (gameplayTime <= 0f)
+        if (GameStateManager.Instance.IsGameTimeOut())
         {
             DisplayWinner();
-            Time.timeScale = 0f;
-            return;
         }
     }
 
-    float highestMorale;
+    float highestScore;
     HordeFormation winner;
     
+    //Logic Incorrect; Needs modification for final product;
     private void DisplayWinner()
     {
+        //TimeoutWindow.Show();
         winner = hordeFormations[0];
-        highestMorale = winner.hordeMorale;
+        highestScore = winner.score;
         foreach (HordeFormation hordeFormation in hordeFormations)
         {
-            if (hordeFormation.hordeMorale > highestMorale)
+            if (hordeFormation.score > highestScore)
             {
                 winner = hordeFormation;
-                highestMorale = winner.hordeMorale;
+                highestScore = winner.hordeMorale;
             }
         }
-        if (winnerText != null) winnerText.text = winner.name;
+
+        Debug.Log(winner.name);
+        //if (winnerText != null) winnerText.text = winner.name;
     }
 
 
-    public Transform GetHomeTransform(HordeFormation hordeFormation)
-    {
-        Transform home = null;
-
-        foreach (HordeData hordeHome in hordeHomeList)
-        {
-            if (hordeHome.hordeFormation == hordeFormation)
-            {
-                home = hordeHome.home;
-            }
-        }
-        return home;
-    }
 
     private void CalculateScore()
     {
@@ -141,10 +128,6 @@ public class GameplayManager : MonoBehaviour
         OnScoreUpdated?.Invoke(hordeScore); //UI score...
     }
 
-    public List<float> GetScoreList()
-    {
-        return hordeScore;
-    }
 
     private void UpdateInteractableLayer(int layer, HordeFormation eliminatedHorde)
     {
@@ -186,11 +169,27 @@ public class GameplayManager : MonoBehaviour
     }
 
 
+    public List<float> GetScoreList()
+    {
+        return hordeScore;
+    }
     public List<HordeFormation> GetHordeFormation()
     {
         return hordeFormations;
     }
+    public Transform GetHomeTransform(HordeFormation hordeFormation)
+    {
+        Transform home = null;
 
+        foreach (HordeData hordeHome in hordeHomeList)
+        {
+            if (hordeHome.hordeFormation == hordeFormation)
+            {
+                home = hordeHome.home;
+            }
+        }
+        return home;
+    }
     public Material GetUnitMaterial(HordeFormation hordeFormation)
     {
         Material unitMaterial = null;
