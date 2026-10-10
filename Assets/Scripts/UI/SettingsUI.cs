@@ -5,12 +5,14 @@ using TMPro;
 
 
 
+//Everything inside of the SettingsUI only.
 public class SettingsUI : MonoBehaviour
 {
+    [Header("Components")]
     [SerializeField] private TMP_InputField musicVolumeInputField;
-    [SerializeField] private Slider musicVolumeSlider;
-
     [SerializeField] private TMP_InputField sfxVolumeInputField;
+
+    [SerializeField] private Slider musicVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
 
     [SerializeField] private Button resetButton;
@@ -23,6 +25,9 @@ public class SettingsUI : MonoBehaviour
     [SerializeField] private int defaultSFXVolume = 50;
 
     private float maxVolumeValue = 100;
+
+
+
 
 
 
@@ -39,11 +44,12 @@ public class SettingsUI : MonoBehaviour
 
     private void Start()
     {
+        ResetValues();
+
         musicVolumeSlider.maxValue = maxVolumeValue;
         sfxVolumeSlider.maxValue = maxVolumeValue;
-        
-        
-        
+
+        //Buttons
         resetButton.onClick.AddListener(() =>
         {
             ResetValues();
@@ -51,12 +57,11 @@ public class SettingsUI : MonoBehaviour
 
         saveButton.onClick.AddListener(() =>
         {
-
+            UIManager.Instance.DisableSettingsWindow();
         });
         crossButton.onClick.AddListener(() =>
         {
-            MainMenuUI.Instance.ShowUnnecessaryButtons();
-            HideSettingsWindow();
+            UIManager.Instance.DisableSettingsWindow();
         });
 
 
@@ -89,8 +94,7 @@ public class SettingsUI : MonoBehaviour
             UpdateSFXFieldAndSlider((int)value);
         });
 
-
-        HideSettingsWindow();
+        UIManager.Instance.DisableSettingsWindow();
     }
 
 
@@ -115,17 +119,5 @@ public class SettingsUI : MonoBehaviour
     {
         UpdateMusicFieldAndSlider(defaultMusicVolume);
         UpdateSFXFieldAndSlider(defaultSFXVolume);
-    }
-
-
-    public void ShowSettingsWindow()
-    {
-        gameObject.SetActive(true);
-    }
-
-
-    private void HideSettingsWindow()
-    {
-        gameObject.SetActive(false);
     }
 }

@@ -12,6 +12,8 @@ public class HordeFormation : MonoBehaviour
     public event Action<HordeFormation> UpdatePlayerLives;
     #endregion
 
+
+
     [Header("Important")]
     public LayerMask enemyLayer;
     public float hordeMorale { get; private set; }
@@ -51,6 +53,9 @@ public class HordeFormation : MonoBehaviour
 
 
 
+
+
+
     private void Awake()
     {
         points = new List<Vector3>();
@@ -75,7 +80,6 @@ public class HordeFormation : MonoBehaviour
 
     private void Update()
     {
-        //ReturnToHome();
         CalculateHordeMorale();
         AssignUnitPosition();
         if (scoreText != null) scoreText.text = Mathf.FloorToInt(score).ToString();
@@ -88,7 +92,7 @@ public class HordeFormation : MonoBehaviour
 
 
     //Unit position specification;
-    private void EvaluatePoints() 
+    private void EvaluatePoints()
     {
         for (float z = 0; z > -numberOfRows; z--)
         {
@@ -111,7 +115,7 @@ public class HordeFormation : MonoBehaviour
                 if (units.Count < startingUnitsCount)
                 {
                     GameObject unitToSpawn = ObjectPooler.Instance.SpawnUnit(transform.TransformPoint(position), Quaternion.identity, this);
-                    unitToSpawn.GetComponent<Unit>().targetPosition = position;
+                    unitToSpawn.GetComponent<Unit>().targetPosition = transform.TransformPoint(position);
                     units.Add(unitToSpawn.transform);
 
                     unitToSpawn.layer = lookTransform.gameObject.layer;
@@ -136,17 +140,17 @@ public class HordeFormation : MonoBehaviour
     }
 
 
-    private Vector3 GetSlotJitter() //Noise
+    //Noise
+    private Vector3 GetSlotJitter()
     {
         Vector2 offset = UnityEngine.Random.insideUnitCircle * formationJitter;
         return new Vector3(offset.x, 0f, offset.y);
     }
 
-    //Addition and Removal;
-
-    public void AddUnitForFree()
+    //Add and Remove Unit;
+    public void AddUnitForFree(Transform spawnTransform)
     {
-        GameObject unitToAdd = ObjectPooler.Instance.SpawnUnit(GameplayManager.Instance.GetHomeTransform(this).position, Quaternion.identity, this);
+        GameObject unitToAdd = ObjectPooler.Instance.SpawnUnit(spawnTransform.position, Quaternion.identity, this);
         unitToAdd.layer = lookTransform.gameObject.layer;
         units.Add(unitToAdd.transform);
 
@@ -155,13 +159,17 @@ public class HordeFormation : MonoBehaviour
         unit.isDetected = false;
     }
 
+
+    public bool isNearAFlag = false;
     public void AddUnit()
     {
-        if (units.Count >= points.Count) return;
-
-        if (RemoveCoin(perUnitCost))
+        if (!IsFlagNearby()) return;
+        if (units.Count < points.Count && isNearAFlag)
         {
-            AddUnitForFree();
+            if (RemoveCoin(perUnitCost))
+            {
+                if(nearestFlag != null) AddUnitForFree(nearestFlag.transform);
+            }
         }
     }
 
@@ -198,7 +206,7 @@ public class HordeFormation : MonoBehaviour
         return lookTransform;
     }
 
-    
+    //Add and Remove Flag;
     public void AddFlag(Flag flag)
     {
         occupiedFlags.Add(flag);
@@ -208,13 +216,13 @@ public class HordeFormation : MonoBehaviour
         occupiedFlags.Remove(flag);
     }
 
+    //Add and Remove Coin;
     public void AddCoin(int amount)
     {
         coins += amount;
 
         coinsAllTime += amount;
     }
-
     public bool RemoveCoin(int amount)
     {
         bool removedCoin = false;
@@ -238,5 +246,25 @@ public class HordeFormation : MonoBehaviour
     public int GetMaxNumberOfPosition()
     {
         return points.Count;
+    }
+
+    private Flag nearestFlag;
+    public bool IsFlagNearby()
+    {
+        foreach (Flag flag in occupiedFlags)
+        {
+            if (flag.isPlayerNearby)
+            {
+                isNearAFlag = true;
+                nearestFlag = flag;
+                break;
+            }
+            else
+            {
+                isNearAFlag = false;
+            }
+        }
+
+        return isNearAFlag;
     }
 }

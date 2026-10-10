@@ -33,7 +33,7 @@ public class PlayerController : BaseController
     private void Update()
     {
         MovementHandler();
-
+        RotationHandler();
         if(coinsAmountText != null) coinsAmountText.text = hordeFormation.coins.ToString();
     }
 
@@ -79,6 +79,13 @@ public class PlayerController : BaseController
         }
     }
 
+    private void RotationHandler()
+    {
+        if (InputManager.Instance.GetMoveDirection().sqrMagnitude < 0.01f) return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(InputManager.Instance.GetMoveDirection().x, 0f, InputManager.Instance.GetMoveDirection().y));
+        transform.rotation = targetRotation;
+    }
 
 
     public override Vector3 GetRotation()
@@ -99,5 +106,15 @@ public class PlayerController : BaseController
     public override void RemoveDeadEnemyLayer(int layer)
     {
         interactableLayer &= ~(1 << layer);
+    }
+
+    public override bool IsMoving()
+    {
+        return InputManager.Instance.GetMoveDirection().sqrMagnitude > 0.2f * 0.2f;
+    }
+
+    public override void WriteSomethingDown()
+    {
+        Debug.Log("Something");
     }
 }

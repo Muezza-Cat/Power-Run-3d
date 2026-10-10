@@ -29,8 +29,13 @@ public class GameplayManager : MonoBehaviour
     [SerializeField] private List<HordeData> hordeHomeList;
     [SerializeField] private List<Transform> flagList;
     private List<HordeFormation> hordeFormations;
+    public float remainingHordeCount;
     private List<float> hordeScore;
     private List<int> playerLives; //Each player i.e. hordes, have 4 lives before perma- dead;
+
+
+    [Header("Reference")]
+    public HordeFormation playerHorde;
 
 
     [Header("Settings")]
@@ -40,7 +45,9 @@ public class GameplayManager : MonoBehaviour
     [Header("Score")]
     private int baseFlagSPM = 60; //SPM = Score Per Minute
 
-
+    float scoreByCoins = 0f;
+    float scoreByFlags = 0f;
+    float scoreByHome = 0f;
 
 
     private void Awake()
@@ -48,8 +55,10 @@ public class GameplayManager : MonoBehaviour
         Instance = this;
 
         hordeFormations = new List<HordeFormation>();
-        playerLives = new List<int>();  
+        playerLives = new List<int>();
         hordeScore = new List<float>();
+
+        remainingHordeCount = hordeFormations.Count;
 
         foreach (HordeData hordeHome in hordeHomeList)
         {
@@ -58,6 +67,8 @@ public class GameplayManager : MonoBehaviour
             playerLives.Add(Lives);
             hordeScore.Add(hordeFormation.score);
         }
+
+        scoreByHome = (baseFlagSPM * Time.deltaTime) / 60f;
     }
 
     private void Start()
@@ -68,64 +79,35 @@ public class GameplayManager : MonoBehaviour
             hordeFormation.UpdatePlayerLives += PlayerLivesCounter;
         }
     }
-    
+
 
     private void Update()
     {
         CalculateScore();
-
-        if (GameStateManager.Instance.IsGameTimeOut())
-        {
-            DisplayWinner();
-        }
     }
-
-    float highestScore;
-    HordeFormation winner;
-    
-    //Logic Incorrect; Needs modification for final product;
-    private void DisplayWinner()
-    {
-        //TimeoutWindow.Show();
-        winner = hordeFormations[0];
-        highestScore = winner.score;
-        foreach (HordeFormation hordeFormation in hordeFormations)
-        {
-            if (hordeFormation.score > highestScore)
-            {
-                winner = hordeFormation;
-                highestScore = winner.hordeMorale;
-            }
-        }
-
-        Debug.Log(winner.name);
-        //if (winnerText != null) winnerText.text = winner.name;
-    }
-
 
 
     private void CalculateScore()
     {
-        hordeScore.Clear();
+        scoreByCoins = 0f;
+        scoreByFlags = 0f;
 
+        hordeScore.Clear();
         foreach (HordeFormation hordeFormation in hordeFormations)
         {
             hordeScore.Add(hordeFormation.score);
 
-            if (hordeFormation.GetOccupiedFlags().Count == 0)
+            foreach (Flag flag in hordeFormation.GetOccupiedFlags())
             {
-                hordeFormation.score = hordeFormation.coinsAllTime / 2f;
-                continue;
+                scoreByFlags += (flag.scorePerMinute * Time.deltaTime) / 60f; 
             }
-            else
-            {
-                foreach (Flag flag in hordeFormation.GetOccupiedFlags())
-                {
-                    hordeFormation.score += ((flag.scorePerMinute * Time.deltaTime) / 60f) + hordeFormation.coinsAllTime / 2f;
-                }
-            }
+            scoreByCoins = hordeFormation.coinsAllTime / 3;
+
+            hordeFormation.score += (scoreByFlags + scoreByCoins);
         }
-        OnScoreUpdated?.Invoke(hordeScore); //UI score...
+
+
+        OnScoreUpdated?.Invoke(hordeScore);
     }
 
 
@@ -154,14 +136,14 @@ public class GameplayManager : MonoBehaviour
                 if (playerLives[i] != 0)
                 {
                     hordeFormation.gameObject.transform.position = GetHomeTransform(hordeFormation).position;
-                    hordeFormation.AddUnitForFree();
+                    hordeFormation.AddUnitForFree(GetHomeTransform(hordeFormation));
                 }
                 else
                 {
                     hordeFormation.gameObject.SetActive(false);
-                    hordeFormation.UpdatePlayerLives -= PlayerLivesCounter;
+                    hordeFormation.gameObject.transform.position = GetHomeTransform(hordeFormation).position;
 
-                    //Display GameOver window or something like those;
+                    hordeFormation.UpdatePlayerLives -= PlayerLivesCounter;
                     return;
                 }
             }
@@ -200,5 +182,10 @@ public class GameplayManager : MonoBehaviour
             unitMaterial = hordeHome.unitMaterial;
         }
         return unitMaterial;
+    }
+    public int GetPlayerRemainingLives(HordeFormation hordeFormation)
+    {
+        int playerIndex = hordeFormations.IndexOf(hordeFormation);
+        return playerLives[playerIndex];
     }
 }

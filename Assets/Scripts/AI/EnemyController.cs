@@ -57,8 +57,6 @@ public class EnemyController : BaseController
     {
         decision = Decision.Ignore;
         path = new NavMeshPath();
-
-        Debug.Log((int)mode);
     }
 
     
@@ -326,5 +324,15 @@ public class EnemyController : BaseController
     public override void RemoveDeadEnemyLayer(int layer)
     {
         interactableLayer &= ~(1 << layer);
+    }
+
+    public override bool IsMoving()
+    {
+        return agent.velocity.sqrMagnitude > 0.01f;
+    }
+
+    public override void WriteSomethingDown()
+    {
+
     }
 }

@@ -1,19 +1,26 @@
+using System;
 using UnityEngine;
 
 
 
 public class Unit : MonoBehaviour
 {
+    #region Events
+    public event Action OnPositionChanged;
+    public event Action OnPositionUnchanged;
+
+    #endregion
+
+
     [Header("Reference")]
     [HideInInspector] public HordeFormation hordeFormation;
     [HideInInspector] public BaseController baseController;
-    [SerializeField] private MeshRenderer meshRenderer;
+    [SerializeField] private SkinnedMeshRenderer skinnedMeshRenderer;
     private CapsuleCollider capsuleCollider;
 
 
     [Header("Settings")]
-    [SerializeField] private float angularVelocity = 10f;
-    public Vector3 targetPosition;
+    public Vector3 targetPosition; //World Pos;
     private float currentHealth;
     public float CurrentHealth
     {
@@ -45,14 +52,22 @@ public class Unit : MonoBehaviour
     private float crestMoveSpeed = 8f;
     private float troughMoveSpeed = 3f;
     private float currentMoveSpeed;
+    private float movementThreshold = 0.02f;
 
     //Angular Velocity
     private float crestAngularVelocity = 15f;
     private float troughAngularVelocity = 6f;
     private float currentAngularVelocity;
 
+    private float sqrDistanceFromTargetPosition = 0f;
+
+    //Capsule cast
+    private float radius = 0.5f;
+    private float castDistance = 0.1f;
+
     [Header("Flag")]
     public bool isDetected = false;
+    private bool canMove;
 
 
 
@@ -60,24 +75,27 @@ public class Unit : MonoBehaviour
     {
         capsuleCollider = GetComponent<CapsuleCollider>();
 
-        CurrentHealth = Random.Range(0.5f, 1.5f);
-        currentMoveSpeed = Random.Range(troughMoveSpeed, crestMoveSpeed);
-        currentAngularVelocity = Random.Range(troughAngularVelocity, crestAngularVelocity);
+        CurrentHealth = UnityEngine.Random.Range(0.5f, 1.5f);
+        currentMoveSpeed = UnityEngine.Random.Range(troughMoveSpeed, crestMoveSpeed);
+        currentAngularVelocity = UnityEngine.Random.Range(troughAngularVelocity, crestAngularVelocity);
         elapsedTime = hitCooldown;
     }
+
+
 
     public void Initialize(HordeFormation hordeFormation)
     {
         this.hordeFormation = hordeFormation;
         baseController = hordeFormation.baseController;
 
-        meshRenderer.material = GameplayManager.Instance.GetUnitMaterial(hordeFormation);
+        skinnedMeshRenderer.material = GameplayManager.Instance.GetUnitMaterial(hordeFormation);
     }
 
-    
+
 
     private void Update()
     {
+        //IsMoving();
         FightOnlyAtSight();
 
         IndependentMovementHandler();
@@ -86,51 +104,44 @@ public class Unit : MonoBehaviour
         UpdateLinearAndAngularVelocity();
     }
 
+
     
-
-
-    private bool canMove;
-
-    private float radius = 0.5f;
-    private float castDistance = 0.1f;
-
-    private float teleportationTime = 2f;
-    private float teleportationElapsedTime = 0f;
     private void IndependentMovementHandler()
     {
-        Vector3 moveDirection = (targetPosition - transform.position).normalized;
-        Vector3 p1 = transform.position + Vector3.up * +0.5f;
-        Vector3 p2 = transform.position + Vector3.up * -0.5f;
-        canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirection, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
+        sqrDistanceFromTargetPosition = (targetPosition - transform.position).sqrMagnitude;
 
-        if (canMove)
+        PlayAnimation(sqrDistanceFromTargetPosition);
+
+        if (sqrDistanceFromTargetPosition > movementThreshold * movementThreshold)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * currentMoveSpeed);
-            return;
-        }
-        else if (!canMove)
-        {
-            Vector3 moveDirectionX = new Vector3(moveDirection.x, 0f, 0f).normalized;
-            canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirectionX, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
+            Vector3 moveDirection = (targetPosition - transform.position).normalized;
+            Vector3 p1 = transform.position + Vector3.up * +0.5f;
+            Vector3 p2 = transform.position + Vector3.up * -0.5f;
+            canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirection, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
 
             if (canMove)
             {
-                transform.position += moveDirectionX * Time.deltaTime * currentMoveSpeed;
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * currentMoveSpeed);
+                return;
             }
-            else
+            else if (!canMove)
             {
-                Vector3 moveDirectionZ = new Vector3(0f, 0f, moveDirection.z).normalized;
-                canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirectionZ, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
+                Vector3 moveDirectionX = new Vector3(moveDirection.x, 0f, 0f).normalized;
+                canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirectionX, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
 
                 if (canMove)
                 {
-                    transform.position += moveDirectionZ * Time.deltaTime * currentMoveSpeed;
+                    transform.position += moveDirectionX * Time.deltaTime * currentMoveSpeed;
                 }
                 else
                 {
-                    teleportationElapsedTime += Time.deltaTime;
-                    if (teleportationElapsedTime < teleportationTime) return;
-                    teleportationElapsedTime = 0f;
+                    Vector3 moveDirectionZ = new Vector3(0f, 0f, moveDirection.z).normalized;
+                    canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirectionZ, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
+
+                    if (canMove)
+                    {
+                        transform.position += moveDirectionZ * Time.deltaTime * currentMoveSpeed;
+                    }
                 }
             }
         }
@@ -153,8 +164,8 @@ public class Unit : MonoBehaviour
         velocityUpdateElapsedTime += Time.deltaTime;
         if (velocityUpdateElapsedTime < velocityUpdateCooldown) return;
 
-        currentMoveSpeed = Random.Range(troughMoveSpeed, crestMoveSpeed);
-        currentAngularVelocity = Random.Range(troughAngularVelocity, crestAngularVelocity);
+        currentMoveSpeed = UnityEngine.Random.Range(troughMoveSpeed, crestMoveSpeed);
+        currentAngularVelocity = UnityEngine.Random.Range(troughAngularVelocity, crestAngularVelocity);
     }
 
 
@@ -189,6 +200,7 @@ public class Unit : MonoBehaviour
             foreach (Collider enemyCollider in collider)
             {
                 Unit otherUnit = enemyCollider.GetComponent<Unit>();
+                if (otherUnit == null) continue;
                 if (otherUnit.isDetected) continue;
                 else
                 {
@@ -219,5 +231,17 @@ public class Unit : MonoBehaviour
     private void Elimination()
     {
         hordeFormation.RemoveUnit(this.transform);
+    }
+
+    private void PlayAnimation(float sqrDistanceFromTargetPosition)
+    {
+        if (sqrDistanceFromTargetPosition > movementThreshold * movementThreshold)
+        {
+            OnPositionChanged?.Invoke();
+        }
+        else
+        {
+            OnPositionUnchanged?.Invoke();
+        }
     }
 }

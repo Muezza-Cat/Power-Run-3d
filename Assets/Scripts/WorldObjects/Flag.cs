@@ -26,7 +26,7 @@ public class Flag : MonoBehaviour
     private void Start()
     {
         StartCoroutine(TestRoutine());
-        flagText.text = "none : 0f";
+        if(flagText != null) flagText.text = "none : 0f";
     }
 
     private void Update()
@@ -34,6 +34,7 @@ public class Flag : MonoBehaviour
         DetectHordeAroundFlag();
 
         SetFlagOwner();
+        EnableUnitsAddition();
     }
 
     private IEnumerator TestRoutine()
@@ -69,7 +70,7 @@ public class Flag : MonoBehaviour
 
     private float flagCaptureTime = 3f;
     private float flagCaptureElapsedTime = 0f;
-    private float highestHordeMorale ;
+    private float highestHordeMorale;
     private HordeFormation worthyOwner;
     private List<float> hordeMorales = new List<float>();
 
@@ -117,5 +118,21 @@ public class Flag : MonoBehaviour
             flagOwner.AddFlag(this);
         }
         //flagText.text = $"{flagOwner.name } + {flagCaptureElapsedTime.ToString()}";
+    }
+
+
+    public bool isPlayerNearby = false;
+    private float interactableDistance = 10f;
+    private void EnableUnitsAddition()
+    {
+        if (flagOwner == null) return;
+        if ((flagOwner.transform.position - transform.position).sqrMagnitude < interactableDistance * interactableDistance)
+        {
+            isPlayerNearby = true;
+        }
+        else
+        {
+            isPlayerNearby = false;
+        }
     }
 }
