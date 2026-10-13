@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using System;
 
 
 
@@ -72,5 +70,12 @@ public class InputManager : MonoBehaviour
     public Vector2 GetMoveDirection()
     {
         return moveDirection.normalized;
+    }
+
+
+    private void OnDestroy()
+    {
+        touchInputSystem.Touch.Disable();
+        touchInputSystem.Dispose();
     }
 }

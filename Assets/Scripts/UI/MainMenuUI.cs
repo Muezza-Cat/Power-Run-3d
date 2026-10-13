@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -17,6 +16,8 @@ public class MainMenuUI : MonoBehaviour
     private UIManager uiManager;
     private GameStateManager gameStateManager;
     [SerializeField] private SettingsUI settingsUI;
+    private TouchInputSystem touchInputSystem;
+
 
     [Header("MainMenuUI Buttons")]
     [SerializeField] private Button playButton;
@@ -38,7 +39,6 @@ public class MainMenuUI : MonoBehaviour
     }
 
 
-    TouchInputSystem touchInputSystem;
     private void Start()
     {
         touchInputSystem = new TouchInputSystem();
@@ -56,6 +56,12 @@ public class MainMenuUI : MonoBehaviour
         {
             Application.Quit();
         });
+
+        if (SceneLoader.directlyPlayGame) //Directly play the game instead of going into the main menu;
+        {
+            playButton.onClick.Invoke();
+            SceneLoader.directlyPlayGame = false;
+        }
     }
 
 
@@ -64,9 +70,10 @@ public class MainMenuUI : MonoBehaviour
 
     private void OnPlayButtonPressed()
     {
-        uiManager.EnableTouchToStartUI();
         uiManager.DisableMainMenuUIContainer();
-        uiManager.TogglePauseAndSettingsButton(true);
+
+        uiManager.EnableTouchToStartUI();
+        uiManager.TogglePauseAndSettingsButton();
     }
 
     public void OnTapToPlay(InputAction.CallbackContext context)
@@ -76,5 +83,7 @@ public class MainMenuUI : MonoBehaviour
 
         uiManager.DisableTouchToStartUI();
         touchInputSystem.Touch.Touch.started -= OnTapToPlay;
+        touchInputSystem.Touch.Disable();
+        touchInputSystem.Dispose();
     }
 }

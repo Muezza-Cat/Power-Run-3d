@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 
 
-
 public class UIManager : MonoBehaviour
 {
 
@@ -38,7 +37,8 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        TogglePauseAndSettingsButton(false);
+        pauseButton.gameObject.SetActive(false);
+        settingsButton.gameObject.SetActive(true);
 
         settingsButton.onClick.AddListener(() =>
         {
@@ -114,11 +114,14 @@ public class UIManager : MonoBehaviour
     {
         touchToStartUI.SetActive(false);
     }
-    
 
-    public void TogglePauseAndSettingsButton(bool enablePause)
+
+    bool toggleButtonActivity = false;
+    public void TogglePauseAndSettingsButton()
     {
-        pauseButton.gameObject.SetActive(enablePause);
-        settingsButton.gameObject.SetActive(!enablePause);
+        toggleButtonActivity = !toggleButtonActivity;
+
+        pauseButton.gameObject.SetActive(toggleButtonActivity);
+        settingsButton.gameObject.SetActive(!toggleButtonActivity);
     }
 }

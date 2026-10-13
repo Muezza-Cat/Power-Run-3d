@@ -8,7 +8,7 @@ public class Unit : MonoBehaviour
     #region Events
     public event Action OnPositionChanged;
     public event Action OnPositionUnchanged;
-
+    public event Action OnFightEvent;
     #endregion
 
 
@@ -52,7 +52,7 @@ public class Unit : MonoBehaviour
     private float crestMoveSpeed = 8f;
     private float troughMoveSpeed = 3f;
     private float currentMoveSpeed;
-    private float movementThreshold = 0.02f;
+    private float movementThreshold = 0.01f;
 
     //Angular Velocity
     private float crestAngularVelocity = 15f;
@@ -183,6 +183,9 @@ public class Unit : MonoBehaviour
             unit.isDetected = true;
             unit.TakeDamage(damageAmount);
 
+            //Animation and Rotation
+            transform.rotation = Quaternion.LookRotation((unit.transform.position - transform.position).normalized);
+            OnFightEvent?.Invoke();
 
             if (!isDetected)
             {
@@ -206,6 +209,10 @@ public class Unit : MonoBehaviour
                 {
                     otherUnit.isDetected = true;
                     otherUnit.TakeDamage(damageAmount);
+
+                    //Animation and Rotation
+                    transform.rotation = Quaternion.LookRotation((otherUnit.transform.position - transform.position).normalized);
+                    OnFightEvent?.Invoke();
 
                     if (!isDetected)
                     {

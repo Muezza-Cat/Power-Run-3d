@@ -32,11 +32,11 @@ public class PauseWindowUI : MonoBehaviour
 
         quitButton.onClick.AddListener(() =>
         {
-            SceneLoader.LoadScene(SceneLoader.Scene.MainMenuScene);
+            SceneLoader.ReloadScene();
         });
         restartButton.onClick.AddListener(() =>
         {
-            SceneLoader.ReloadScene();
+            SceneLoader.ReloadSceneAsRestartGame();
         });
 
         UIManager.Instance.DisablePauseWindow();

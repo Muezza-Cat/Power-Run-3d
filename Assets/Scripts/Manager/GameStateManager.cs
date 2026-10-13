@@ -51,8 +51,7 @@ public class GameStateManager : MonoBehaviour
         gameplayElapsedTime = gameplayTimeMax;
         state = State.MainMenu;
     }
-
-
+    
 
     private void Start()
     {
@@ -62,6 +61,7 @@ public class GameStateManager : MonoBehaviour
 
     public void Update()
     {
+        
         switch (state)
         {
             default:
@@ -83,6 +83,7 @@ public class GameStateManager : MonoBehaviour
             case State.Over:
                 if (isGameOver) return;
                 OnStateChanged?.Invoke();
+                SaveSystem.Instance.SaveData(); //Testing Phase
                 isGameOver = true;
                 break;
         }

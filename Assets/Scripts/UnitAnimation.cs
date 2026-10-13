@@ -27,6 +27,7 @@ public class UnitAnimation : MonoBehaviour
     {
         unit.OnPositionChanged += Unit_OnPositionChanged;
         unit.OnPositionUnchanged += Unit_OnPositionUnchanged;
+        unit.OnFightEvent += Unit_OnFightEvent;
     }
 
 
@@ -38,5 +39,10 @@ public class UnitAnimation : MonoBehaviour
     private void Unit_OnPositionUnchanged()
     {
         animator.SetBool(moveHash, false);
+    }
+
+    private void Unit_OnFightEvent()
+    {
+        animator.SetTrigger(fightHash);
     }
 }

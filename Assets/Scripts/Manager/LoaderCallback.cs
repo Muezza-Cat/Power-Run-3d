@@ -1,8 +1,16 @@
 using UnityEngine;
 
+
+
 public class LoaderCallback : MonoBehaviour
 {
     private bool isFirstUpdate = true;
+
+
+    private void Awake()
+    {
+        Debug.Log("LoaderCallback is running successfully");
+    }
 
     private void Update()
     {

@@ -2,13 +2,19 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using TMPro;
+using System;
 
 
 
 //Testing Phase; Not final;
 public class Flag : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI flagText;
+    #region Event
+    public static event Action<Flag> OnOwnerChanged;
+    #endregion
+
+
+    //[SerializeField] private TextMeshProUGUI flagText;
 
     private List<HordeFormation> hordeNearby;
     private HordeFormation flagOwner;
@@ -25,8 +31,8 @@ public class Flag : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(TestRoutine());
-        if(flagText != null) flagText.text = "none : 0f";
+        //StartCoroutine(TestRoutine());
+        //if(flagText != null) flagText.text = "none : 0f";
     }
 
     private void Update()
@@ -37,14 +43,14 @@ public class Flag : MonoBehaviour
         EnableUnitsAddition();
     }
 
-    private IEnumerator TestRoutine()
-    {
-        while (true) 
-        {
-            yield return new WaitForSeconds(0.5f);
-        }
+    //private IEnumerator TestRoutine()
+    //{
+    //    while (true) 
+    //    {
+    //        yield return new WaitForSeconds(0.5f);
+    //    }
 
-    }
+    //}
 
     private void DetectHordeAroundFlag()
     {
@@ -98,7 +104,7 @@ public class Flag : MonoBehaviour
             {
                 startTimer = false;
                 flagCaptureElapsedTime = 0f;
-            }
+            } //Case same morale count;
             else startTimer = true;
         }
         else
@@ -116,6 +122,8 @@ public class Flag : MonoBehaviour
             if (flagOwner != null) flagOwner.RemoveFlag(this);
             flagOwner = worthyOwner;
             flagOwner.AddFlag(this);
+
+            OnOwnerChanged?.Invoke(this);
         }
         //flagText.text = $"{flagOwner.name } + {flagCaptureElapsedTime.ToString()}";
     }
@@ -134,5 +142,10 @@ public class Flag : MonoBehaviour
         {
             isPlayerNearby = false;
         }
+    }
+
+    public HordeFormation GetFlagOwner()
+    {
+        return flagOwner;
     }
 }

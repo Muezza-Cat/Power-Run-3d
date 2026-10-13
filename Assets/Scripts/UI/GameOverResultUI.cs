@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
@@ -25,6 +26,7 @@ public class GameOverResultUI : MonoBehaviour
     [Header("Reference")]
     private GameplayManager gameplayManager;
     private GameStateManager gameStateManager;
+    private TouchInputSystem touchInputSystem;
     [SerializeField] private HordeFormation playerHorde;
 
     [SerializeField] private TextMeshProUGUI resultText; //Win or Lose;
@@ -47,10 +49,18 @@ public class GameOverResultUI : MonoBehaviour
     private string WIN = "Victory";
 
 
+    /*[Header("Flag")]
+    private bool isLevelCompleted = false;*/
+
+
+
     private void Awake()
     {
         sortedScoreList = new List<float>();
         sortedHordeByScore = new List<HordeFormation>();
+
+        touchInputSystem = new TouchInputSystem();
+        //touchInputSystem.Enable();
     }
 
 
@@ -66,15 +76,15 @@ public class GameOverResultUI : MonoBehaviour
 
         nextButton.onClick.AddListener(() =>
         {
-
+            SceneLoader.LoadScene(/*(SceneLoader.Scene) SceneManager.GetActiveScene().buildIndex*/ SceneManager.GetActiveScene().buildIndex + 1);
         });
         restartButton.onClick.AddListener(() =>
         {
-            SceneLoader.ReloadScene();
+            OnRestartLevel();
         });
         quitButton.onClick.AddListener(() =>
         {
-            SceneLoader.LoadScene(SceneLoader.Scene.MainMenuScene);
+            SceneLoader.ReloadScene();
         });
 
 
@@ -193,7 +203,6 @@ public class GameOverResultUI : MonoBehaviour
             float scoreBarWidth = (sortedScoreList[i] / (sortedScoreList[i] + 110f)) * scoreBarWidthMax;
             scoreUITemplate.Initialize(Mathf.FloorToInt(sortedScoreList[i]), scoreBarWidth + 10f);
             scoreUITemplate.scoreBar.color = gameplayManager.GetUnitMaterial(sortedHordeByScore[i]).color;
-            Debug.Log(scoreBarWidth);
         }
 
         if (winnerHorde == playerHorde)
@@ -219,23 +228,8 @@ public class GameOverResultUI : MonoBehaviour
     }
    
 
-    //private void DisplayGameOverOnPlayerWin()
-    //{
-    //    resultText.text = WIN;
-    //    obtainedRankText.text = "Your Rank : #1";
 
-    //    HideUIButton(new Button[] { quitButton, restartButton, quitButton }); //Just for formality;
-    //    ShowUIButton(new Button[] { quitButton, restartButton, quitButton });
-    //}
 
-    //private void DisplayGameOverOnPlayerLost()
-    //{
-    //    resultText.text = LOSE;
-    //    obtainedRankText.text = "Your Rank : NIL";
-
-    //    HideUIButton(new Button[] { quitButton, restartButton, quitButton });
-    //    ShowUIButton(new Button[] { quitButton, restartButton });
-    //}
 
     private void ShowUIButton(Button[] buttons)
     {
@@ -250,5 +244,35 @@ public class GameOverResultUI : MonoBehaviour
         {
             button.gameObject.SetActive(false);
         }
+    }
+
+
+    /*public bool IsLevelCompleted()
+    {
+        return isLevelCompleted;
+    }
+*/
+
+    private void OnRestartLevel()
+    {
+        SceneLoader.ReloadSceneAsRestartGame();
+
+        if (UIManager.Instance == null) Debug.LogWarning("Null reference of UIManager's Object");
+        UIManager.Instance.DisableMainMenuUIContainer();
+
+        touchInputSystem.Enable();
+        touchInputSystem.Touch.Touch.started += Touch_started;
+        UIManager.Instance.EnableTouchToStartUI();
+    }
+
+    private void Touch_started(InputAction.CallbackContext obj)
+    {
+        UIManager.Instance.DisableTouchToStartUI();
+        UIManager.Instance.EnableInGameUI();
+        UIManager.Instance.TogglePauseAndSettingsButton();
+
+        touchInputSystem.Touch.Touch.started -= Touch_started;
+        touchInputSystem.Touch.Disable();
+        touchInputSystem.Dispose();
     }
 }

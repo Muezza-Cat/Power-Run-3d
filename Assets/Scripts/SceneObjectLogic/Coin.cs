@@ -1,5 +1,7 @@
 using UnityEngine;
 
+
+
 public class Coin : MonoBehaviour
 {
     private int coinAmount = 1;
@@ -7,7 +9,9 @@ public class Coin : MonoBehaviour
     {
         if ((CoinManager.Instance.interactableLayer & (1 << other.gameObject.layer)) != 0)
         {
-            other.gameObject.GetComponent<Unit>().hordeFormation.AddCoin(coinAmount);
+            Unit unit = other.gameObject.GetComponent<Unit>();
+
+            unit.hordeFormation.AddCoin(coinAmount);
             CoinManager.Instance.DisableCoin(this.gameObject);
         }
     }

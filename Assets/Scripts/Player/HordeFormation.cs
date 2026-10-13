@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using System;
-
+using System.Collections;
 
 
 public class HordeFormation : MonoBehaviour
@@ -54,8 +54,6 @@ public class HordeFormation : MonoBehaviour
 
 
 
-
-
     private void Awake()
     {
         points = new List<Vector3>();
@@ -72,6 +70,7 @@ public class HordeFormation : MonoBehaviour
 
         baseController = GetComponent<BaseController>();
     }
+
 
     private void Start()
     {
@@ -177,8 +176,15 @@ public class HordeFormation : MonoBehaviour
     public void RemoveUnit(Transform unit)
     {
         units.Remove(unit);
-        ObjectPooler.Instance.DespawnUnit(unit.gameObject);
+        //ObjectPooler.Instance.DespawnUnit(unit.gameObject);
+        StartCoroutine(DespawnLater(unit));                                                         
+    }
 
+    //Testing;
+    private IEnumerator DespawnLater(Transform unit)
+    {
+        yield return new WaitForSeconds(1f);
+        ObjectPooler.Instance.DespawnUnit(unit.gameObject);
         unit.gameObject.layer = 0;
         UpdatePlayerLives?.Invoke(this);
     }
@@ -222,6 +228,7 @@ public class HordeFormation : MonoBehaviour
         coins += amount;
 
         coinsAllTime += amount;
+        score += amount / 3f;
     }
     public bool RemoveCoin(int amount)
     {

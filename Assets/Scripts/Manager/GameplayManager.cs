@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 
 public class GameplayManager : MonoBehaviour
@@ -45,14 +45,15 @@ public class GameplayManager : MonoBehaviour
     [Header("Score")]
     private int baseFlagSPM = 60; //SPM = Score Per Minute
 
-    float scoreByCoins = 0f;
     float scoreByFlags = 0f;
     float scoreByHome = 0f;
+
 
 
     private void Awake()
     {
         Instance = this;
+
 
         hordeFormations = new List<HordeFormation>();
         playerLives = new List<int>();
@@ -73,6 +74,8 @@ public class GameplayManager : MonoBehaviour
 
     private void Start()
     {
+        SaveSystem.Instance.SaveData();
+
         foreach (HordeFormation hordeFormation in hordeFormations)
         {
             hordeFormation.OnDisableUpdateEnemyLayer += UpdateInteractableLayer;
@@ -89,7 +92,6 @@ public class GameplayManager : MonoBehaviour
 
     private void CalculateScore()
     {
-        scoreByCoins = 0f;
         scoreByFlags = 0f;
 
         hordeScore.Clear();
@@ -101,12 +103,10 @@ public class GameplayManager : MonoBehaviour
             {
                 scoreByFlags += (flag.scorePerMinute * Time.deltaTime) / 60f; 
             }
-            scoreByCoins = hordeFormation.coinsAllTime / 3;
-
-            hordeFormation.score += (scoreByFlags + scoreByCoins);
+            hordeFormation.score += (scoreByFlags);
         }
 
-
+        
         OnScoreUpdated?.Invoke(hordeScore);
     }
 
@@ -187,5 +187,41 @@ public class GameplayManager : MonoBehaviour
     {
         int playerIndex = hordeFormations.IndexOf(hordeFormation);
         return playerLives[playerIndex];
+    }
+
+    public List<Transform> GetFlagList()
+    {
+        return flagList;
+    }
+
+    
+
+
+    public class SaveObject
+    {
+        public int targetSceneIndex;
+    }
+
+    public SaveObject SaveOnLevelLoad(bool levelCompleted)
+    {
+        if (levelCompleted)
+        {
+            return new SaveObject() { targetSceneIndex = SceneManager.GetActiveScene().buildIndex + 1 };
+        }
+        else
+        {
+            return new SaveObject() { targetSceneIndex = SceneManager.GetActiveScene().buildIndex };
+        }
+    }
+
+    public SaveObject SaveOnLevelComplete()
+    {
+        return new SaveObject() { targetSceneIndex = SceneManager.GetActiveScene().buildIndex + 1 };
+    }
+
+    public void Load(SaveObject saveObject)
+    {
+        int sceneIndex = saveObject.targetSceneIndex;
+        SceneLoader.LoadScene(/*(SceneLoader.Scene) */sceneIndex);
     }
 }
