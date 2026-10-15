@@ -4385,7 +4385,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a52d4c9c8b31044a96a9db920ae7be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flag
-  flagText: {fileID: 0}
   isPlayerNearby: 0
 --- !u!4 &706467302
 Transform:
@@ -4851,7 +4850,7 @@ MonoBehaviour:
   tapToPlay: {fileID: 1890574897}
   settingsButton: {fileID: 748182516}
   pauseButton: {fileID: 163421824}
-  gameplayTimeMax: 6
+  gameplayTimeMax: 60
   state: 0
   gamePaused: 0
   isGameOver: 0
@@ -5866,7 +5865,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a52d4c9c8b31044a96a9db920ae7be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flag
-  flagText: {fileID: 0}
   isPlayerNearby: 0
 --- !u!4 &917112298
 Transform:
@@ -6695,7 +6693,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a52d4c9c8b31044a96a9db920ae7be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flag
-  flagText: {fileID: 0}
   isPlayerNearby: 0
 --- !u!4 &998830543
 Transform:
@@ -12812,7 +12809,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a52d4c9c8b31044a96a9db920ae7be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flag
-  flagText: {fileID: 0}
   isPlayerNearby: 0
 --- !u!4 &2041513700
 Transform:
@@ -13191,7 +13187,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6a52d4c9c8b31044a96a9db920ae7be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flag
-  flagText: {fileID: 0}
   isPlayerNearby: 0
 --- !u!4 &2094311411
 Transform:

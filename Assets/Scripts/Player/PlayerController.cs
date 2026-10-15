@@ -110,7 +110,8 @@ public class PlayerController : BaseController
 
     public override bool IsMoving()
     {
-        return InputManager.Instance.GetMoveDirection().sqrMagnitude > 0.2f * 0.2f;
+        //return InputManager.Instance.GetMoveDirection().sqrMagnitude > 0.2f * 0.2f;
+        return InputManager.Instance.GetMoveDirection().sqrMagnitude > 0.01f * 0.01f;
     }
 
     public override void WriteSomethingDown()

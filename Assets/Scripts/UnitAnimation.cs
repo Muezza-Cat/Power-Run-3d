@@ -7,9 +7,11 @@ public class UnitAnimation : MonoBehaviour
 
     private const string MOVE = "Move";
     private const string FIGHT = "Fight";
+    private const string DEAD = "Death";
 
     private int moveHash;
     private int fightHash;
+    private int deathHash;
 
 
 
@@ -21,6 +23,7 @@ public class UnitAnimation : MonoBehaviour
 
         moveHash = Animator.StringToHash(MOVE);
         fightHash = Animator.StringToHash(FIGHT);
+        deathHash = Animator.StringToHash(DEAD);
     }
 
     private void Start()
@@ -28,6 +31,7 @@ public class UnitAnimation : MonoBehaviour
         unit.OnPositionChanged += Unit_OnPositionChanged;
         unit.OnPositionUnchanged += Unit_OnPositionUnchanged;
         unit.OnFightEvent += Unit_OnFightEvent;
+        unit.OnUnitDead += Unit_OnUnitDead;
     }
 
 
@@ -44,5 +48,10 @@ public class UnitAnimation : MonoBehaviour
     private void Unit_OnFightEvent()
     {
         animator.SetTrigger(fightHash);
+    }
+
+    private void Unit_OnUnitDead()
+    {
+        animator.SetTrigger(deathHash);
     }
 }

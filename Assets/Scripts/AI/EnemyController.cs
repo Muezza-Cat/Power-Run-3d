@@ -328,7 +328,7 @@ public class EnemyController : BaseController
 
     public override bool IsMoving()
     {
-        return agent.velocity.sqrMagnitude > 0.01f;
+        return agent.velocity.sqrMagnitude > 0.01f * 0.01f;
     }
 
     public override void WriteSomethingDown()

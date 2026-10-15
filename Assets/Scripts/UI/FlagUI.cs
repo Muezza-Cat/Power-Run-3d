@@ -60,7 +60,7 @@ public class FlagUI : MonoBehaviour
         {
             if (flag_FlagUI.flag != flag) continue;
 
-            flag_FlagUI.flagUI.GetComponentInChildren<Image>().color = GameplayManager.Instance.GetUnitMaterial(flag.GetFlagOwner()).color;
+            if (flag.GetFlagOwner() != null) flag_FlagUI.flagUI.GetComponentInChildren<Image>().color = GameplayManager.Instance.GetUnitMaterial(flag.GetFlagOwner()).color;
         }
     }
 

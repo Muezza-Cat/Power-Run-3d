@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEngine;
+using System;
 using UnityEngine.SceneManagement;
 
 
@@ -36,9 +37,10 @@ public class SaveSystem : MonoBehaviour
 
 
 
+    [Serializable]
     public class MainSaveObjectClass
     {
-
+        public GameplayManager.SaveObject gameplayManagerSaveObject;
     }
 
 
@@ -49,17 +51,13 @@ public class SaveSystem : MonoBehaviour
     // - Saving when a game is completed (not done)
     public void SaveData()
     {
-        string json = JsonUtility.ToJson(GameplayManager.Instance.SaveOnLevelLoad(GameStateManager.Instance.IsGameOver()));
+        string json = JsonUtility.ToJson(new MainSaveObjectClass()
+        {
+            gameplayManagerSaveObject = GameplayManager.Instance.SaveOnLevelLoad(GameStateManager.Instance.IsGameOver()),
+        });
 
         if (GameplayManager.Instance == null) Debug.LogWarning("Null reference to GameplayManager");
         File.WriteAllText(Application.dataPath + "/Saves/saveFile.sav" , json);
-
-        //string jsonTest1 = Application.dataPath + "/Saves";
-        //string jsonTest2 = Application.dataPath + "/Saves";
-
-        //if (File.Exists(jsonTest1)) Debug.Log("The folder Saves is present");
-        //if (File.Exists(jsonTest2)) Debug.Log("The folder Saves and the File saveFile is present");
-
     }
 
 
@@ -76,12 +74,8 @@ public class SaveSystem : MonoBehaviour
 
             string json = File.ReadAllText(Application.dataPath + "/Saves/saveFile.sav");
 
-            GameplayManager.SaveObject saveLoadSystem = JsonUtility.FromJson<GameplayManager.SaveObject>(json);
-            SceneManager.LoadScene(saveLoadSystem.targetSceneIndex);
+            MainSaveObjectClass saveLoadSystem = JsonUtility.FromJson<MainSaveObjectClass>(json);
+            SceneManager.LoadScene(saveLoadSystem.gameplayManagerSaveObject.targetSceneIndex);
         }
-
-
-
-        //GameplayManager.Instance.Load(saveLoadSystem);
     }
 }

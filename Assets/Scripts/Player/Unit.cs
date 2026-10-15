@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 
@@ -9,6 +10,7 @@ public class Unit : MonoBehaviour
     public event Action OnPositionChanged;
     public event Action OnPositionUnchanged;
     public event Action OnFightEvent;
+    public event Action OnUnitDead;
     #endregion
 
 
@@ -32,7 +34,9 @@ public class Unit : MonoBehaviour
         {
             if (value <= 0f)
             {
-                Elimination();
+                this.gameObject.layer = 0;
+                OnUnitDead?.Invoke();
+                StartCoroutine(TimedEliminationRoutine());
                 currentHealth = 0f;
                 return;
             }
@@ -42,17 +46,18 @@ public class Unit : MonoBehaviour
     }
 
 
-    private float hitCooldown = 0.1f; //10 times per second;
-    private float elapsedTime = 0f;
-
     private float attackRange = 1f;
     public float damageAmount = 1f;
+
+    //HitPoints
+    private float troughHP = 0.3f;
+    private float crestHP = 3f;
 
     //Linear Velocity
     private float crestMoveSpeed = 8f;
     private float troughMoveSpeed = 3f;
     private float currentMoveSpeed;
-    private float movementThreshold = 0.01f;
+    private float movementThreshold = 0.05f;
 
     //Angular Velocity
     private float crestAngularVelocity = 15f;
@@ -74,11 +79,13 @@ public class Unit : MonoBehaviour
     private void Awake()
     {
         capsuleCollider = GetComponent<CapsuleCollider>();
+    }
 
-        CurrentHealth = UnityEngine.Random.Range(0.5f, 1.5f);
+    private void OnEnable()
+    {
+        CurrentHealth = UnityEngine.Random.Range(troughHP, crestHP);
         currentMoveSpeed = UnityEngine.Random.Range(troughMoveSpeed, crestMoveSpeed);
         currentAngularVelocity = UnityEngine.Random.Range(troughAngularVelocity, crestAngularVelocity);
-        elapsedTime = hitCooldown;
     }
 
 
@@ -96,7 +103,8 @@ public class Unit : MonoBehaviour
     private void Update()
     {
         //IsMoving();
-        FightOnlyAtSight();
+        //FightOnlyAtSight();
+        FightAtSight();
 
         IndependentMovementHandler();
         IndependentRotationHandler();
@@ -152,7 +160,8 @@ public class Unit : MonoBehaviour
     {
         if (baseController != null && baseController.GetRotation() != Vector3.zero)
         {
-            transform.eulerAngles = new Vector3(0f, Mathf.LerpAngle(transform.eulerAngles.y, baseController.GetRotation().y, Time.deltaTime * currentAngularVelocity), 0f);
+            //transform.eulerAngles = new Vector3(0f, Mathf.LerpAngle(transform.eulerAngles.y, baseController.GetRotation().y, Time.deltaTime * currentAngularVelocity), 0f);
+            transform.eulerAngles = new Vector3(0f, baseController.GetRotation().y, 0f);
         }
     }
 
@@ -169,65 +178,89 @@ public class Unit : MonoBehaviour
     }
 
 
-    private void FightOnlyAtSight()
+
+    private float hitCooldownTime = 0.5f;
+    private float hitElapsedTime = 0.5f;
+    private void FightAtSight()
     {
         Collider[] collider = Physics.OverlapSphere(transform.position, attackRange, hordeFormation.enemyLayer, QueryTriggerInteraction.Ignore);
-
         if (collider == null || collider.Length == 0) return;
 
-        //First check the first unit is either already detected or not;
-        //If not;
+        targetPosition = collider[0].transform.position;
+        hitElapsedTime += Time.deltaTime;
+        if(hitElapsedTime < hitCooldownTime) return;
+        hitElapsedTime = 0f;
+
         Unit unit = collider[0].GetComponent<Unit>();
-        if (unit != null && !unit.isDetected)
-        {
-            unit.isDetected = true;
-            unit.TakeDamage(damageAmount);
 
-            //Animation and Rotation
-            transform.rotation = Quaternion.LookRotation((unit.transform.position - transform.position).normalized);
-            OnFightEvent?.Invoke();
+        unit.TakeDamage(damageAmount);
 
-            if (!isDetected)
-            {
-                TakeDamage(unit.damageAmount);
-                isDetected = false;
-            }
-            else
-            {
-                isDetected = false;
-            }
-        }
-        //If yes;
-        else
-        {
-            foreach (Collider enemyCollider in collider)
-            {
-                Unit otherUnit = enemyCollider.GetComponent<Unit>();
-                if (otherUnit == null) continue;
-                if (otherUnit.isDetected) continue;
-                else
-                {
-                    otherUnit.isDetected = true;
-                    otherUnit.TakeDamage(damageAmount);
+        //Rotation and Animation;
+        Vector3 lookDirection = (unit.transform.position - transform.position).normalized;
+        if(lookDirection != Vector3.zero) transform.rotation = Quaternion.LookRotation(lookDirection);
+        OnFightEvent?.Invoke();
 
-                    //Animation and Rotation
-                    transform.rotation = Quaternion.LookRotation((otherUnit.transform.position - transform.position).normalized);
-                    OnFightEvent?.Invoke();
-
-                    if (!isDetected)
-                    {
-                        TakeDamage(unit.damageAmount);
-                        isDetected = false;
-                        return;
-                    }
-                    else
-                    {
-                        isDetected = false;
-                    }
-                }
-            }
-        }
     }
+
+    //private void FightOnlyAtSight()
+    //{
+    //    Collider[] collider = Physics.OverlapSphere(transform.position, attackRange, hordeFormation.enemyLayer, QueryTriggerInteraction.Ignore);
+
+    //    if (collider == null || collider.Length == 0) return;
+
+    //    //First check the first unit is either already detected or not;
+    //    //If not;
+    //    Unit unit = collider[0].GetComponent<Unit>();
+    //    if (unit != null && !unit.isDetected)
+    //    {
+    //        unit.isDetected = true;
+    //        unit.TakeDamage(damageAmount);
+
+    //        //Animation and Rotation
+    //        transform.rotation = Quaternion.LookRotation((unit.transform.position - transform.position).normalized);
+    //        OnFightEvent?.Invoke();
+
+    //        if (!isDetected)
+    //        {
+    //            TakeDamage(unit.damageAmount);
+    //            isDetected = false;
+    //        }
+    //        else
+    //        {
+    //            isDetected = false;
+    //        }
+    //    }
+    //    //If yes;
+    //    else
+    //    {
+    //        foreach (Collider enemyCollider in collider)
+    //        {
+    //            Unit otherUnit = enemyCollider.GetComponent<Unit>();
+    //            if (otherUnit == null) continue;
+    //            if (otherUnit.isDetected) continue;
+    //            else
+    //            {
+    //                otherUnit.isDetected = true;
+    //                otherUnit.TakeDamage(damageAmount);
+
+    //                //Animation and Rotation
+    //                transform.rotation = Quaternion.LookRotation((otherUnit.transform.position - transform.position).normalized);
+    //                OnFightEvent?.Invoke();
+
+    //                if (!isDetected)
+    //                {
+    //                    TakeDamage(unit.damageAmount);
+    //                    isDetected = false;
+    //                    return;
+    //                }
+    //                else
+    //                {
+    //                    isDetected = false;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
 
     public void TakeDamage(float dmgAmt)
@@ -235,14 +268,17 @@ public class Unit : MonoBehaviour
         CurrentHealth -= dmgAmt;
     }
 
-    private void Elimination()
+
+    private IEnumerator TimedEliminationRoutine()
     {
+        yield return new WaitForSeconds(1f);
         hordeFormation.RemoveUnit(this.transform);
     }
 
+    //Movement Animation;
     private void PlayAnimation(float sqrDistanceFromTargetPosition)
     {
-        if (sqrDistanceFromTargetPosition > movementThreshold * movementThreshold)
+        if (baseController.IsMoving() || sqrDistanceFromTargetPosition > movementThreshold * movementThreshold)
         {
             OnPositionChanged?.Invoke();
         }

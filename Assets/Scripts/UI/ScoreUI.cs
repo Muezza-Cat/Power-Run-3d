@@ -8,9 +8,6 @@ using UnityEngine.UI;
 
 public class ScoreUI : MonoBehaviour
 {
-    [Header("Reference")]
-    [SerializeField] private UnitSkinSO unitSkinSO;
-
     [Header("TMP Text")]
     [SerializeField] private RectTransform rankTransform;
     [SerializeField] private GameObject scoreUITemplate;

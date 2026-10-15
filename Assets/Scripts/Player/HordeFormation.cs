@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using System;
 using System.Collections;
+using System.IO;
 
 
 public class HordeFormation : MonoBehaviour
@@ -176,20 +177,13 @@ public class HordeFormation : MonoBehaviour
     public void RemoveUnit(Transform unit)
     {
         units.Remove(unit);
-        //ObjectPooler.Instance.DespawnUnit(unit.gameObject);
-        StartCoroutine(DespawnLater(unit));                                                         
-    }
-
-    //Testing;
-    private IEnumerator DespawnLater(Transform unit)
-    {
-        yield return new WaitForSeconds(1f);
+        //unit.gameObject.layer = 0;
         ObjectPooler.Instance.DespawnUnit(unit.gameObject);
-        unit.gameObject.layer = 0;
         UpdatePlayerLives?.Invoke(this);
+        //StartCoroutine(DespawnLater(unit));
     }
 
-
+    
     private void CalculateHordeMorale()
     {
         moraleCalculationElapsedTime += Time.deltaTime;

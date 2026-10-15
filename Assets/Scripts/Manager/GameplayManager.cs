@@ -15,7 +15,6 @@ public class GameplayManager : MonoBehaviour
     public Action<List<float>> OnScoreUpdated;
     #endregion
 
-
     [Serializable]
     private struct HordeData
     {
@@ -81,6 +80,7 @@ public class GameplayManager : MonoBehaviour
             hordeFormation.OnDisableUpdateEnemyLayer += UpdateInteractableLayer;
             hordeFormation.UpdatePlayerLives += PlayerLivesCounter;
         }
+
     }
 
 
@@ -194,9 +194,9 @@ public class GameplayManager : MonoBehaviour
         return flagList;
     }
 
-    
 
 
+    [Serializable]
     public class SaveObject
     {
         public int targetSceneIndex;
@@ -214,10 +214,6 @@ public class GameplayManager : MonoBehaviour
         }
     }
 
-    public SaveObject SaveOnLevelComplete()
-    {
-        return new SaveObject() { targetSceneIndex = SceneManager.GetActiveScene().buildIndex + 1 };
-    }
 
     public void Load(SaveObject saveObject)
     {
