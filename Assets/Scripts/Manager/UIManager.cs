@@ -18,6 +18,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject settingsWindowUI;
     [SerializeField] private GameObject inGameUI;
     [SerializeField] private GameObject touchToStartUI;
+    //[SerializeField] private GameObject joystickUI;
 
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button pauseButton;
@@ -115,6 +116,16 @@ public class UIManager : MonoBehaviour
         touchToStartUI.SetActive(false);
     }
 
+    //Joystick UI
+   /* public void EnableJoystickUI()
+    {
+        joystickUI.SetActive(true);
+    }
+    public void DisableJoystickUI()
+    {
+        joystickUI.SetActive(false);
+    }
+   */
 
     bool toggleButtonActivity = false;
     public void TogglePauseAndSettingsButton()

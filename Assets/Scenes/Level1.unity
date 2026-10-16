@@ -8652,11 +8652,6 @@ MonoBehaviour:
   settingsUI: {fileID: 2012673801}
   playButton: {fileID: 875164146}
   quitButton: {fileID: 1325563149}
-  upgradeStartingUnitsCountButton: {fileID: 0}
-  upgradeStartingGoldCountButton: {fileID: 0}
-  selectUnitSkinButton: {fileID: 0}
-  purchaseDiamondButton: {fileID: 0}
-  watchAdForDiamondButton: {fileID: 0}
 --- !u!1 &1266112420
 GameObject:
   m_ObjectHideFlags: 0

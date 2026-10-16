@@ -22,12 +22,12 @@ public class MainMenuUI : MonoBehaviour
     [Header("MainMenuUI Buttons")]
     [SerializeField] private Button playButton;
     [SerializeField] private Button quitButton;
-
+/*
     [SerializeField] private Button upgradeStartingUnitsCountButton;
     [SerializeField] private Button upgradeStartingGoldCountButton;
     [SerializeField] private Button selectUnitSkinButton;
     [SerializeField] private Button purchaseDiamondButton;
-    [SerializeField] private Button watchAdForDiamondButton;
+    [SerializeField] private Button watchAdForDiamondButton;*/
     //etc.....
 
 
@@ -49,7 +49,8 @@ public class MainMenuUI : MonoBehaviour
         {
             gameStateManager.state = GameStateManager.State.TouchToStart;
             OnPlayButtonPressed();
-            touchInputSystem.Touch.Touch.started += OnTapToPlay;
+
+            touchInputSystem.Touch.Touch.started += OnTapToPlay; //For TouchInput;
             touchInputSystem.Enable();
         });
         quitButton.onClick.AddListener(() => 
@@ -62,6 +63,10 @@ public class MainMenuUI : MonoBehaviour
             playButton.onClick.Invoke();
             SceneLoader.directlyPlayGame = false;
         }
+
+        uiManager.DisableTouchToStartUI();
+        uiManager.DisableScoreUI();
+        //uiManager.DisableJoystickUI();
     }
 
 
@@ -74,6 +79,7 @@ public class MainMenuUI : MonoBehaviour
 
         uiManager.EnableTouchToStartUI();
         uiManager.TogglePauseAndSettingsButton();
+        Debug.Log("Time.timeScale : " + Time.timeScale);
     }
 
     public void OnTapToPlay(InputAction.CallbackContext context)
@@ -81,7 +87,9 @@ public class MainMenuUI : MonoBehaviour
         Debug.Log("TouchStarted");
         gameStateManager.state = GameStateManager.State.StartCountdown;
 
+        //uiManager.EnableJoystickUI(); 
         uiManager.DisableTouchToStartUI();
+
         touchInputSystem.Touch.Touch.started -= OnTapToPlay;
         touchInputSystem.Touch.Disable();
         touchInputSystem.Dispose();

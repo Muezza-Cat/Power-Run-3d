@@ -55,7 +55,9 @@ public class GameStateManager : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("Before TogglingGameState, Time.timeScale : " + Time.timeScale);
         ToggleGameState();
+        Debug.Log("After TogglingGameState, Time.timeScale : " + Time.timeScale);
     }
 
 
@@ -72,7 +74,7 @@ public class GameStateManager : MonoBehaviour
             case State.StartCountdown:
                 OnStateChanged?.Invoke();
                 break;
-            case State.Playing:
+            case State.Playing: //TimerUI, Level Text, UI polish pending.....
                 gameplayElapsedTime -= Time.deltaTime;
                 if (gameplayElapsedTime <= 0f)
                 {
@@ -97,11 +99,6 @@ public class GameStateManager : MonoBehaviour
         return state == State.Over;
     }
 
-    public bool IsGamePlaying()
-    {
-        return state == State.Playing;
-    }
-    
 
     public bool IsCountdownToStartActive()
     {

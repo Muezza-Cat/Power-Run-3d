@@ -52,7 +52,7 @@ public class CountdownUI : MonoBehaviour
         }
     }
 
-
+    //Animation pending.....
     private void Update()
     {
         countdownElapsedTime -= Time.unscaledDeltaTime;
@@ -62,6 +62,7 @@ public class CountdownUI : MonoBehaviour
         {
             gameStateManager.state = GameStateManager.State.Playing;
             gameStateManager.ToggleGameState();
+            Debug.Log("After Countdown end , TimeScale : " + Time.timeScale);
 
             uiManager.EnableInGameUI();
             Hide();
