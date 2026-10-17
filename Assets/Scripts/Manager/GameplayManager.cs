@@ -92,11 +92,10 @@ public class GameplayManager : MonoBehaviour
 
     private void CalculateScore()
     {
-        scoreByFlags = 0f;
-
         hordeScore.Clear();
         foreach (HordeFormation hordeFormation in hordeFormations)
         {
+            scoreByFlags = 0f;
             hordeScore.Add(hordeFormation.score);
 
             foreach (Flag flag in hordeFormation.GetOccupiedFlags())

@@ -94,9 +94,10 @@ public class GameOverResultUI : MonoBehaviour
 
     private void GameStateManager_OnStateChanged()
     {
+        //if (gameStateManager.IsCountdownToStartActive() || gameStateManager.state == GameStateManager.State.MainMenu || gameStateManager.state == GameStateManager.State.TouchToStart) return;
         if (gameStateManager.IsGameOver())
         {
-            Debug.Log("Ran GameOver condition");
+            //Debug.Log("Ran GameOver condition");
 
             UIManager.Instance.EnableGameOverWindowUI();
 
@@ -133,12 +134,12 @@ public class GameOverResultUI : MonoBehaviour
 
     private List<HordeFormation> GetDeadHordeList()
     {
-        List<HordeFormation> excludingHorde = new List<HordeFormation>();
+        List<HordeFormation> deadHordeList = new List<HordeFormation>();
         foreach (HordeFormation hordeFormation in gameplayManager.GetHordeFormation())
         {
-            if (gameplayManager.GetPlayerRemainingLives(hordeFormation) == 0) excludingHorde.Add(hordeFormation);
+            if (gameplayManager.GetPlayerRemainingLives(hordeFormation) == 0) deadHordeList.Add(hordeFormation);
         }
-        return excludingHorde;
+        return deadHordeList;
     }
 
 

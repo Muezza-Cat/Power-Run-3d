@@ -10,11 +10,9 @@ using System;
 public class Flag : MonoBehaviour
 {
     #region Event
-    public static event Action<Flag> OnOwnerChanged;
+    public event Action<Flag> OnOwnerChanged;
     #endregion
 
-
-    //[SerializeField] private TextMeshProUGUI flagText;
 
     private List<HordeFormation> hordeNearby;
     private HordeFormation flagOwner;
@@ -29,11 +27,6 @@ public class Flag : MonoBehaviour
     }
 
 
-    private void Start()
-    {
-        //StartCoroutine(TestRoutine());
-        //if(flagText != null) flagText.text = "none : 0f";
-    }
 
     private void Update()
     {
@@ -43,19 +36,21 @@ public class Flag : MonoBehaviour
         EnableUnitsAddition();
     }
 
-    //private IEnumerator TestRoutine()
-    //{
-    //    while (true) 
-    //    {
-    //        yield return new WaitForSeconds(0.5f);
-    //    }
 
-    //}
 
-    private void DetectHordeAroundFlag()
+    private float hordeDetectionCooldownTime = 0.1f;
+    private float hordeDetectionElapsedTime = 0f;
+
+    //Other solution => Iterate the hordeFormations and find out the closest one, that one is cheap;
+    /*private void DetectHordeAroundFlag()
     {
+        hordeDetectionElapsedTime += Time.deltaTime;
+        if (hordeDetectionElapsedTime < hordeDetectionCooldownTime) return;
+        hordeDetectionElapsedTime = 0f;
+
         if (hordeNearby.Count == GameplayManager.Instance.GetHordeFormation().Count) return;
         hordeNearby.Clear();
+
         Collider[] unitsNearby = Physics.OverlapSphere(transform.position, flagCaptureRadius);
         foreach (Collider collider in unitsNearby)
         {
@@ -72,7 +67,22 @@ public class Flag : MonoBehaviour
                 }
             }
         }
+    }*/
+
+    private void DetectHordeAroundFlag()
+    {
+        hordeNearby.Clear();
+        foreach (HordeFormation hordeFormation in GameplayManager.Instance.GetHordeFormation())
+        {
+            float sqrDistanceFromFlag = (hordeFormation.transform.position - transform.position).sqrMagnitude;
+
+            if (sqrDistanceFromFlag <= flagCaptureRadius * flagCaptureRadius && !hordeNearby.Contains(hordeFormation))
+            {
+                hordeNearby.Add(hordeFormation);
+            }
+        }
     }
+
 
     private float flagCaptureTime = 3f;
     private float flagCaptureElapsedTime = 0f;

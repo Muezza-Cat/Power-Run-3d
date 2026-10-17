@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 
@@ -113,7 +114,7 @@ public class Unit : MonoBehaviour
     }
 
 
-    
+
     private void IndependentMovementHandler()
     {
         sqrDistanceFromTargetPosition = (targetPosition - transform.position).sqrMagnitude;

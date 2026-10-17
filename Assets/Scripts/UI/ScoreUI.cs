@@ -20,6 +20,7 @@ public class ScoreUI : MonoBehaviour
     [Header("Settings")]
     private float scoreTemplateSpacing = 10f;
     private float scoreBarMaxWidth = 500f;
+    private float scoreBarFixedHeight;
     private float highestScore = 0f;
     private float scoreBarDisplayWidthMax;
 
@@ -32,19 +33,19 @@ public class ScoreUI : MonoBehaviour
 
     private void Start()
     {
-        Image image = null;
-
-        if (image != null) rankTransform.sizeDelta = new Vector2(rankTransform.sizeDelta.x, GameplayManager.Instance.GetHordeFormation().Count * (image.rectTransform.sizeDelta.y + scoreTemplateSpacing));
+        Image image = scoreUITemplate.GetComponentInChildren<Image>();
+        scoreBarFixedHeight = image.rectTransform.sizeDelta.y;
+        if (image != null) rankTransform.sizeDelta = new Vector2(rankTransform.sizeDelta.x, GameplayManager.Instance.GetHordeFormation().Count * (scoreBarFixedHeight + scoreTemplateSpacing));
 
         foreach (HordeFormation hordeFormation in GameplayManager.Instance.GetHordeFormation())
         {
-            Transform template = Instantiate(scoreUITemplate, transform).transform;
-            template.gameObject.SetActive(true);
+            Transform scoreUITemplateTransform = Instantiate(scoreUITemplate, transform).transform;
+            scoreUITemplateTransform.gameObject.SetActive(true);
 
-            TextMeshProUGUI scoreText = template.GetComponentInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI scoreText = scoreUITemplateTransform.GetComponentInChildren<TextMeshProUGUI>();
             scoreTextList.Add(scoreText);
 
-            image = template.GetComponentInChildren<Image>();
+            image = scoreUITemplateTransform.GetComponentInChildren<Image>();
             scoreBarTransformList.Add(image.rectTransform);
             image.color = GameplayManager.Instance.GetUnitMaterial(hordeFormation).color;
         }

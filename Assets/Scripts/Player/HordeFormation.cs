@@ -2,8 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using System;
-using System.Collections;
-using System.IO;
 
 
 public class HordeFormation : MonoBehaviour
@@ -38,7 +36,8 @@ public class HordeFormation : MonoBehaviour
 
     [SerializeField, Range(0, 1)] private float formationJitter = 0.3f; //Noise;
 
-    private float halfOfUnitWidth;
+    private float halfOfHordeWidth = 2f;
+    private float halfOfHordeLength = 2f;
 
     private float moraleCalculationCooldown = 0.2f;
     private float moraleCalculationElapsedTime = 0f;
@@ -63,8 +62,6 @@ public class HordeFormation : MonoBehaviour
         units = new List<Transform>();
         distanceFromPoints = new List<float>();
         occupiedFlags = new List<Flag>();
-
-        halfOfUnitWidth = Mathf.CeilToInt((numberOfColumns - 1) / 2f);
 
         unitSpacingX = unitSpacingX_Axis;
         unitSpacingZ = unitSpacingZ_Axis;
@@ -94,18 +91,25 @@ public class HordeFormation : MonoBehaviour
     //Unit position specification;
     private void EvaluatePoints()
     {
-        for (float z = 0; z > -numberOfRows; z--)
+        for (float z = 0; z < numberOfRows; z++)
         {
+            float zPos;
+            zPos = z;
+            if (z > halfOfHordeLength)
+            {
+                zPos = -(z - halfOfHordeLength);
+            }
+
             for (float x = 0; x < numberOfColumns; x++)
             {
                 float xPos;
                 xPos = x;
-                if (x > halfOfUnitWidth)
+                if (x > halfOfHordeWidth)
                 {
-                    xPos = -(x - halfOfUnitWidth); //Order 0, 1 ,2 ,-1 ,-2; for 5 Columns.
+                    xPos = -(x - halfOfHordeWidth); //Order 0, 1 ,2 ,-1 ,-2; for 5 Columns.
                 }
 
-                Vector3 position = new Vector3(xPos * unitSpacingX, 0f, z * unitSpacingZ); //First (0,0);
+                Vector3 position = new Vector3(xPos * unitSpacingX, 0f, zPos * unitSpacingZ); //First (0,0);
                 position += GetSlotJitter();
                 points.Add(position);
 

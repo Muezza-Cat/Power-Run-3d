@@ -23,6 +23,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button pauseButton;
 
+    private SettingsUI settingsUI;
+    private PauseWindowUI pauseUI;
+
 
 
 
@@ -33,6 +36,11 @@ public class UIManager : MonoBehaviour
 
         DisableScoreUI();
         DisableTouchToStartUI();
+
+        settingsUI = settingsWindowUI.GetComponent<SettingsUI>();
+        if (settingsUI == null) Debug.LogWarning("Null reference to settingsUI");
+        pauseUI = pauseWindowUI.GetComponent<PauseWindowUI>();
+        if (pauseUI == null) Debug.LogWarning("Null reference to pauseUI");
     }
 
 
@@ -44,15 +52,26 @@ public class UIManager : MonoBehaviour
         settingsButton.onClick.AddListener(() =>
         {
             EnableSettingsWindow();
-            settingsButton.gameObject.SetActive(false);
         });
         pauseButton.onClick.AddListener(() =>
         {
             EnablePauseWindow();
-            pauseButton.gameObject.SetActive(false);
 
             GameStateManager.Instance.ToggleGameState();
         });
+
+        settingsUI.OnSettingsClosed += SettingsUI_OnSettingsClosed;
+        pauseUI.OnPauseWindowClosed += PauseUI_OnPauseWindowClosed;
+    }
+
+    private void PauseUI_OnPauseWindowClosed()
+    {
+        pauseButton.gameObject.SetActive(true);
+    }
+
+    private void SettingsUI_OnSettingsClosed()
+    {
+        settingsButton.gameObject.SetActive(true); 
     }
 
 
@@ -80,6 +99,7 @@ public class UIManager : MonoBehaviour
     public void EnableSettingsWindow()
     {
         settingsWindowUI.SetActive(true);
+        settingsButton.gameObject.SetActive(false);
     }
     public void DisableSettingsWindow()
     {
@@ -90,6 +110,7 @@ public class UIManager : MonoBehaviour
     public void EnablePauseWindow()
     {
         pauseWindowUI.SetActive(true);
+        pauseButton.gameObject.SetActive(false);
     }
     public void DisablePauseWindow()
     {

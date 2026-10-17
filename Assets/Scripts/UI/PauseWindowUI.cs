@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,11 @@ using UnityEngine.UI;
 
 public class PauseWindowUI : MonoBehaviour
 {
+    #region Events
+    public event Action OnPauseWindowClosed;
+    #endregion
+
+
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button crossButton;
@@ -21,11 +27,15 @@ public class PauseWindowUI : MonoBehaviour
         {
             GameStateManager.Instance.ToggleGameState();
             UIManager.Instance.DisablePauseWindow();
+
+            OnPauseWindowClosed?.Invoke();      
         });
         crossButton.onClick.AddListener(() =>
         {
             GameStateManager.Instance.ToggleGameState();
             UIManager.Instance.DisablePauseWindow();
+
+            OnPauseWindowClosed?.Invoke();      
         });
 
 

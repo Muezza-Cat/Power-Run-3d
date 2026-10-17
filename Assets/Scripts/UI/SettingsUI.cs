@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 
 
@@ -8,6 +9,11 @@ using TMPro;
 //Everything inside of the SettingsUI only.
 public class SettingsUI : MonoBehaviour
 {
+    #region Events
+    public event Action OnSettingsClosed;
+    #endregion
+
+
     [Header("Components")]
     [SerializeField] private TMP_InputField musicVolumeInputField;
     [SerializeField] private TMP_InputField sfxVolumeInputField;
@@ -58,10 +64,12 @@ public class SettingsUI : MonoBehaviour
         saveButton.onClick.AddListener(() =>
         {
             UIManager.Instance.DisableSettingsWindow();
+            OnSettingsClosed?.Invoke();
         });
         crossButton.onClick.AddListener(() =>
         {
             UIManager.Instance.DisableSettingsWindow();
+            OnSettingsClosed?.Invoke();
         });
 
 

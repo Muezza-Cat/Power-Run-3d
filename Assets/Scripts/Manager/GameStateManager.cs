@@ -17,9 +17,6 @@ public class GameStateManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject tapToPlay;
 
-    [SerializeField] private Button settingsButton;
-    [SerializeField] private Button pauseButton;
-
     [Header("Settings")]
     [SerializeField] private float gameplayTimeMax = 6f;
     private float gameplayElapsedTime = 0f;
@@ -84,9 +81,11 @@ public class GameStateManager : MonoBehaviour
                 break;
             case State.Over:
                 if (isGameOver) return;
+
                 OnStateChanged?.Invoke();
-                SaveSystem.Instance.SaveData(); //Testing Phase
                 isGameOver = true;
+                SaveSystem.Instance.SaveData(); //Testing Phase 
+                // Imp note : Null Reference Exception prevents the code below from executing; Make sure to keep risky code at the bottom with null checks after main logic ends.
                 break;
         }
     }
