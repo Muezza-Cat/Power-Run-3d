@@ -69,7 +69,7 @@ public class Unit : MonoBehaviour
 
     //Capsule cast
     private float radius = 0.5f;
-    private float castDistance = 0.1f;
+    private float castDistance = 0.5f;
 
     [Header("Flag")]
     public bool isDetected = false;
@@ -107,15 +107,16 @@ public class Unit : MonoBehaviour
         //FightOnlyAtSight();
         FightAtSight();
 
-        IndependentMovementHandler();
+        //IndependentMovementHandler();
+        IndependentMovementHandlerRemake();
         IndependentRotationHandler();
 
         UpdateLinearAndAngularVelocity();
     }
 
 
-
-    private void IndependentMovementHandler()
+    //Old code, works for gameobjects that are perfectly aligned to the fixed axes.
+    /*private void IndependentMovementHandler()
     {
         sqrDistanceFromTargetPosition = (targetPosition - transform.position).sqrMagnitude;
 
@@ -151,6 +152,47 @@ public class Unit : MonoBehaviour
                     {
                         transform.position += moveDirectionZ * Time.deltaTime * currentMoveSpeed;
                     }
+                }
+            }
+        }
+    }*/
+
+
+
+    //Solution #1
+    // => find the way with vectors instead of rigid axes.
+    private void IndependentMovementHandlerRemake()
+    {
+        sqrDistanceFromTargetPosition = (targetPosition - transform.position).sqrMagnitude;
+
+        PlayAnimation(sqrDistanceFromTargetPosition);
+        if (sqrDistanceFromTargetPosition > movementThreshold * movementThreshold)
+        {
+            Vector3 moveDirection = (targetPosition - transform.position).normalized;
+            Vector3 p1 = transform.position + Vector3.up * +0.5f;
+            Vector3 p2 = transform.position + Vector3.up * -0.5f;
+
+            canMove = !Physics.CapsuleCast(p1, p2, radius, moveDirection, out RaycastHit hit, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore);
+
+            if (canMove)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * currentMoveSpeed);
+            }
+            //Only if the way is not clear;
+            else
+            {
+                Vector3 rightToNormal = Vector3.Cross(hit.normal, Vector3.up).normalized;
+                Vector3 leftToNormal = -rightToNormal;
+
+                if (Vector3.Dot(rightToNormal, moveDirection) >= 0f
+                && !Physics.CapsuleCast(p1, p2, radius - 0.2f, rightToNormal, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore))
+                {
+                    transform.position = Vector3.MoveTowards(transform.position, transform.position + rightToNormal, Time.deltaTime * currentMoveSpeed);
+                }
+                else if (Vector3.Dot(leftToNormal, moveDirection) >= 0f
+                && !Physics.CapsuleCast(p1, p2, radius - 0.2f, leftToNormal, castDistance, baseController.GetInteractableLayers(), QueryTriggerInteraction.Ignore))
+                {
+                    transform.position = Vector3.MoveTowards(transform.position, transform.position + leftToNormal, Time.deltaTime * currentMoveSpeed);
                 }
             }
         }
