@@ -34,7 +34,8 @@ public class PlayerController : BaseController
     {
         MovementHandler();
         RotationHandler();
-        if(coinsAmountText != null) coinsAmountText.text = hordeFormation.coins.ToString();
+
+        if (coinsAmountText != null) coinsAmountText.text = hordeFormation.coins.ToString();
     }
 
 
@@ -112,10 +113,5 @@ public class PlayerController : BaseController
     {
         //return InputManager.Instance.GetMoveDirection().sqrMagnitude > 0.2f * 0.2f;
         return InputManager.Instance.GetMoveDirection().sqrMagnitude > 0.01f * 0.01f;
-    }
-
-    public override void WriteSomethingDown()
-    {
-        Debug.Log("Something");
     }
 }

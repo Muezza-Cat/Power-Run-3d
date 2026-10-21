@@ -19,6 +19,7 @@ public class HordeFormation : MonoBehaviour
     public int coins { get; set; }
     public int coinsAllTime;
     [HideInInspector] public BaseController baseController; //Parent
+    public Material unitMaterial;
 
 
     [Header("Reference")]
@@ -131,9 +132,10 @@ public class HordeFormation : MonoBehaviour
 
     private void AssignUnitPosition()
     {
-        if(units == null || points == null || points.Count == 0)
+        if (units == null || points == null || points.Count == 0)
         {
             Debug.LogWarning("points is empty or null, please check the List");
+            return;
         }
 
         for (int i = 0; i < units.Count; i++)
@@ -173,17 +175,19 @@ public class HordeFormation : MonoBehaviour
             if (RemoveCoin(perUnitCost))
             {
                 if(nearestFlag != null) AddUnitForFree(nearestFlag.transform);
+                UpdatePlayerLives?.Invoke(this);
             }
         }
     }
 
-    
+
     public void RemoveUnit(Transform unit)
     {
         units.Remove(unit);
         //unit.gameObject.layer = 0;
         ObjectPooler.Instance.DespawnUnit(unit.gameObject);
         UpdatePlayerLives?.Invoke(this);
+        if (this.TryGetComponent<PlayerController>(out PlayerController controller)) Debug.Log("Removed Unit : " + units.Count);
         //StartCoroutine(DespawnLater(unit));
     }
 

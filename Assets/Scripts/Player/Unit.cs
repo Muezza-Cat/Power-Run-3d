@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -18,7 +19,7 @@ public class Unit : MonoBehaviour
     [Header("Reference")]
     [HideInInspector] public HordeFormation hordeFormation;
     [HideInInspector] public BaseController baseController;
-    [SerializeField] private SkinnedMeshRenderer skinnedMeshRenderer;
+    [SerializeField] private SkinnedMeshRenderer[] skinnedMeshRendererList;
     private CapsuleCollider capsuleCollider;
 
 
@@ -96,7 +97,10 @@ public class Unit : MonoBehaviour
         this.hordeFormation = hordeFormation;
         baseController = hordeFormation.baseController;
 
-        skinnedMeshRenderer.material = GameplayManager.Instance.GetUnitMaterial(hordeFormation);
+        foreach(SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRendererList)
+        {
+            skinnedMeshRenderer.material = hordeFormation.unitMaterial;
+        }
     }
 
 
@@ -199,12 +203,19 @@ public class Unit : MonoBehaviour
     }
 
 
+    private float maxSelfRotationDistance = 3f;
     private void IndependentRotationHandler()
     {
-        if (baseController != null && baseController.GetRotation() != Vector3.zero)
+        if (sqrDistanceFromTargetPosition > maxSelfRotationDistance * maxSelfRotationDistance)
         {
-            //transform.eulerAngles = new Vector3(0f, Mathf.LerpAngle(transform.eulerAngles.y, baseController.GetRotation().y, Time.deltaTime * currentAngularVelocity), 0f);
-            transform.eulerAngles = new Vector3(0f, baseController.GetRotation().y, 0f);
+            transform.rotation = Quaternion.LookRotation((targetPosition - transform.position).normalized);
+        }
+        else
+        {
+            if (baseController != null && baseController.GetRotation() != Vector3.zero) 
+            {
+                transform.eulerAngles = new Vector3(0f, baseController.GetRotation().y, 0f);
+            } 
         }
     }
 
@@ -222,16 +233,17 @@ public class Unit : MonoBehaviour
 
 
 
-    private float hitCooldownTime = 0.5f;
-    private float hitElapsedTime = 0.5f;
+    private float hitCooldownTime = 3f;
+    private float hitElapsedTime = 3f;
     private void FightAtSight()
     {
         Collider[] collider = Physics.OverlapSphere(transform.position, attackRange, hordeFormation.enemyLayer, QueryTriggerInteraction.Ignore);
         if (collider == null || collider.Length == 0) return;
 
         targetPosition = collider[0].transform.position;
+
         hitElapsedTime += Time.deltaTime;
-        if(hitElapsedTime < hitCooldownTime) return;
+        if (hitElapsedTime < hitCooldownTime) return;
         hitElapsedTime = 0f;
 
         Unit unit = collider[0].GetComponent<Unit>();
@@ -314,20 +326,21 @@ public class Unit : MonoBehaviour
 
     private IEnumerator TimedEliminationRoutine()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(3.5f);
         hordeFormation.RemoveUnit(this.transform);
     }
 
     //Movement Animation;
     private void PlayAnimation(float sqrDistanceFromTargetPosition)
     {
-        if (baseController.IsMoving() || sqrDistanceFromTargetPosition > movementThreshold * movementThreshold)
+        if (baseController.IsMoving())
         {
-            OnPositionChanged?.Invoke();
+            if (sqrDistanceFromTargetPosition > movementThreshold * movementThreshold) OnPositionChanged?.Invoke();
         }
         else
         {
-            OnPositionUnchanged?.Invoke();
+            if (sqrDistanceFromTargetPosition < 2f * 2f) OnPositionUnchanged?.Invoke();
+            else OnPositionChanged?.Invoke();
         }
     }
 }

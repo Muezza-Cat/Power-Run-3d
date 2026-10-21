@@ -59,7 +59,7 @@ public class EnemyController : BaseController
         path = new NavMeshPath();
     }
 
-    
+
     public void Update()
     {
 
@@ -156,7 +156,7 @@ public class EnemyController : BaseController
 
 
     //Medium Mode;
-    
+
     private void AvoidStrongEnemies()
     {
         foreach (HordeFormation enemyHordeFormation in GameplayManager.Instance.GetHordeFormation())
@@ -237,7 +237,7 @@ public class EnemyController : BaseController
 
     private void FightThreat(HordeFormation hordeToFight)
     {
-        if (hordeToFight == null || hordeToFight.GetUnitCount() == 0) 
+        if (hordeToFight == null || hordeToFight.GetUnitCount() == 0)
         {
             decision = Decision.Ignore;
             agent.ResetPath();
@@ -329,10 +329,5 @@ public class EnemyController : BaseController
     public override bool IsMoving()
     {
         return agent.velocity.sqrMagnitude > 0.01f * 0.01f;
-    }
-
-    public override void WriteSomethingDown()
-    {
-
     }
 }

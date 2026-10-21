@@ -11,10 +11,17 @@ public class Flag : MonoBehaviour
 {
     #region Event
     public event Action<Flag> OnOwnerChanged;
+    public event Action<float> OnCaptureProgress;
     #endregion
 
+    [Header("Reference")]
+    [SerializeField] private MeshRenderer meshRenderer;
 
+
+    [Header("Temp Collection")]
     private List<HordeFormation> hordeNearby;
+
+    [Header("Settings")]
     private HordeFormation flagOwner;
     private float flagCaptureRadius = 10f;
 
@@ -38,8 +45,8 @@ public class Flag : MonoBehaviour
 
 
 
-    private float hordeDetectionCooldownTime = 0.1f;
-    private float hordeDetectionElapsedTime = 0f;
+    //private float hordeDetectionCooldownTime = 0.1f;
+    //private float hordeDetectionElapsedTime = 0f;
 
     //Other solution => Iterate the hordeFormations and find out the closest one, that one is cheap;
     /*private void DetectHordeAroundFlag()
@@ -98,9 +105,11 @@ public class Flag : MonoBehaviour
         if (hordeNearby.Count == 0)
         {
             flagCaptureElapsedTime = 0f;
+            OnCaptureProgress?.Invoke(flagCaptureElapsedTime / flagCaptureTime);
             startTimer = false;
             return;
         }
+        //No hordeNearby, just ignore;
 
         highestHordeMorale = hordeNearby[0].hordeMorale;
         if (hordeNearby.Count > 1)
@@ -114,28 +123,41 @@ public class Flag : MonoBehaviour
             {
                 startTimer = false;
                 flagCaptureElapsedTime = 0f;
+                OnCaptureProgress?.Invoke(flagCaptureElapsedTime / flagCaptureTime);
             } //Case same morale count;
             else startTimer = true;
         }
+        //More than one hordeNearby, let the strongest be worthy;
         else
         {
-            worthyOwner = hordeNearby[0];
-            startTimer = true;
+            if (flagOwner != null && hordeNearby[0] == flagOwner)
+            {
+                flagCaptureElapsedTime = 0f;
+                OnCaptureProgress?.Invoke(flagCaptureElapsedTime / flagCaptureTime);
+            }
+            else
+            {
+                worthyOwner = hordeNearby[0];
+                startTimer = true;
+            }
         }
+        //Just one hordeNearby, give it to them and just don't work if it's the owner;
         
+
         if (startTimer)
         {
             flagCaptureElapsedTime += Time.deltaTime;
+            OnCaptureProgress?.Invoke(flagCaptureElapsedTime / flagCaptureTime);
             if (flagCaptureElapsedTime < flagCaptureTime) return;
 
             flagCaptureElapsedTime = 0f;
             if (flagOwner != null) flagOwner.RemoveFlag(this);
             flagOwner = worthyOwner;
             flagOwner.AddFlag(this);
+            meshRenderer.materials[1].color = GameplayManager.Instance.GetUnitMaterial(flagOwner).color;
 
             OnOwnerChanged?.Invoke(this);
         }
-        //flagText.text = $"{flagOwner.name } + {flagCaptureElapsedTime.ToString()}";
     }
 
 

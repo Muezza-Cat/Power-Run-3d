@@ -34,7 +34,7 @@ public class UIManager : MonoBehaviour
     {
         Instance = this;
 
-        DisableScoreUI();
+        DisableInGameUI();
         DisableTouchToStartUI();
 
         settingsUI = settingsWindowUI.GetComponent<SettingsUI>();
@@ -46,9 +46,6 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        pauseButton.gameObject.SetActive(false);
-        settingsButton.gameObject.SetActive(true);
-
         settingsButton.onClick.AddListener(() =>
         {
             EnableSettingsWindow();
@@ -59,20 +56,8 @@ public class UIManager : MonoBehaviour
 
             GameStateManager.Instance.ToggleGameState();
         });
-
-        settingsUI.OnSettingsClosed += SettingsUI_OnSettingsClosed;
-        pauseUI.OnPauseWindowClosed += PauseUI_OnPauseWindowClosed;
     }
 
-    private void PauseUI_OnPauseWindowClosed()
-    {
-        pauseButton.gameObject.SetActive(true);
-    }
-
-    private void SettingsUI_OnSettingsClosed()
-    {
-        settingsButton.gameObject.SetActive(true); 
-    }
 
 
     //MainMenuUI
@@ -104,6 +89,7 @@ public class UIManager : MonoBehaviour
     public void DisableSettingsWindow()
     {
         settingsWindowUI.SetActive(false);
+        settingsButton.gameObject.SetActive(true);
     }
 
     //Pause Window
@@ -115,6 +101,7 @@ public class UIManager : MonoBehaviour
     public void DisablePauseWindow()
     {
         pauseWindowUI.SetActive(false);
+        pauseButton.gameObject.SetActive(true);
     }
 
     //Score UI
@@ -122,7 +109,7 @@ public class UIManager : MonoBehaviour
     {
         inGameUI.SetActive(true);
     }
-    public void DisableScoreUI()
+    public void DisableInGameUI()
     {
         inGameUI.SetActive(false);
     }
@@ -137,23 +124,13 @@ public class UIManager : MonoBehaviour
         touchToStartUI.SetActive(false);
     }
 
-    //Joystick UI
-   /* public void EnableJoystickUI()
-    {
-        joystickUI.SetActive(true);
-    }
-    public void DisableJoystickUI()
-    {
-        joystickUI.SetActive(false);
-    }
-   */
 
-    bool toggleButtonActivity = false;
+    /*bool toggleButtonActivity = false;
     public void TogglePauseAndSettingsButton()
     {
         toggleButtonActivity = !toggleButtonActivity;
 
         pauseButton.gameObject.SetActive(toggleButtonActivity);
         settingsButton.gameObject.SetActive(!toggleButtonActivity);
-    }
+    }*/
 }

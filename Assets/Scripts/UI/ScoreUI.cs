@@ -21,7 +21,7 @@ public class ScoreUI : MonoBehaviour
     private float scoreTemplateSpacing = 10f;
     private float scoreBarMaxWidth = 500f;
     private float scoreBarFixedHeight;
-    private float highestScore = 0f;
+    private static float highestScore = 0f;
     private float scoreBarDisplayWidthMax;
 
 
@@ -75,5 +75,10 @@ public class ScoreUI : MonoBehaviour
             float scoreBarWidth = (scoreList[i] / scoreBarDisplayWidthMax) * scoreBarMaxWidth;
             rTransform.sizeDelta = new Vector2(scoreBarWidth + 10f, rTransform.sizeDelta.y);
         }
+    }
+
+    public static float GetHighestScore()
+    {
+        return highestScore;
     }
 }

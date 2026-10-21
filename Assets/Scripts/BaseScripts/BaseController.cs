@@ -8,6 +8,4 @@ public abstract class BaseController : MonoBehaviour
 
     public abstract bool IsMoving();
     public abstract void RemoveDeadEnemyLayer(int layer);
-
-    public abstract void WriteSomethingDown();
 }

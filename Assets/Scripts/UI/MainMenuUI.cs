@@ -62,11 +62,12 @@ public class MainMenuUI : MonoBehaviour
         {
             playButton.onClick.Invoke();
             SceneLoader.directlyPlayGame = false;
+            return;
         }
 
         uiManager.DisableTouchToStartUI();
-        uiManager.DisableScoreUI();
-        //uiManager.DisableJoystickUI();
+        uiManager.DisableInGameUI();
+        
     }
 
 
@@ -75,10 +76,10 @@ public class MainMenuUI : MonoBehaviour
 
     private void OnPlayButtonPressed()
     {
+        uiManager.EnableTouchToStartUI();
         uiManager.DisableMainMenuUIContainer();
 
-        uiManager.EnableTouchToStartUI();
-        uiManager.TogglePauseAndSettingsButton();
+        //uiManager.TogglePauseAndSettingsButton();
         Debug.Log("Time.timeScale : " + Time.timeScale);
     }
 

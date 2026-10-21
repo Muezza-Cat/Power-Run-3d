@@ -9,11 +9,6 @@ using System;
 //Everything inside of the SettingsUI only.
 public class SettingsUI : MonoBehaviour
 {
-    #region Events
-    public event Action OnSettingsClosed;
-    #endregion
-
-
     [Header("Components")]
     [SerializeField] private TMP_InputField musicVolumeInputField;
     [SerializeField] private TMP_InputField sfxVolumeInputField;
@@ -24,6 +19,7 @@ public class SettingsUI : MonoBehaviour
     [SerializeField] private Button resetButton;
     [SerializeField] private Button saveButton;
     [SerializeField] private Button crossButton;
+    [SerializeField] private Button settingsButton;
 
 
     [Header("Default Values")]
@@ -64,12 +60,10 @@ public class SettingsUI : MonoBehaviour
         saveButton.onClick.AddListener(() =>
         {
             UIManager.Instance.DisableSettingsWindow();
-            OnSettingsClosed?.Invoke();
         });
         crossButton.onClick.AddListener(() =>
         {
             UIManager.Instance.DisableSettingsWindow();
-            OnSettingsClosed?.Invoke();
         });
 
 
@@ -101,6 +95,7 @@ public class SettingsUI : MonoBehaviour
         {
             UpdateSFXFieldAndSlider((int)value);
         });
+
 
         UIManager.Instance.DisableSettingsWindow();
     }

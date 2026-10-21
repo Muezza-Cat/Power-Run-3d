@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -7,6 +8,11 @@ public class CoinManager : MonoBehaviour
     public static CoinManager Instance { get; private set; }
     #endregion
 
+    [Header("Settings")]
+    [SerializeField] private int minXPos = 20;
+    [SerializeField] private int maxXPos = 170;
+    [SerializeField] private int minZPos = 17;
+    [SerializeField] private int maxZPos = 180;
 
     private int coinSpawned = 0;
     private int maxCoinSpawnLimit = 100;
@@ -54,13 +60,20 @@ public class CoinManager : MonoBehaviour
     //Needs updating to Terrain, the magic numbers are for testing purpose only;
     private Vector3 RandomPositionCalculator()
     {
-        Vector3 randomPosition = new Vector3(Random.Range(-20f, 20f), 1f, Random.Range(-20f, 20f));
-        Vector3 finalPosition = Vector3.zero;
+        Vector3 randomPosition = new Vector3(Random.Range(minXPos, maxXPos), 1f, Random.Range(minZPos, maxZPos));
+        //Vector3 randomPosition = new Vector3(0f, 1f, 0f); //Testing Purpose;
 
-        if (NavMesh.SamplePosition(randomPosition, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(randomPosition, out NavMeshHit hit, 0.1f, NavMesh.AllAreas))
         {
-            finalPosition = hit.position;
+            return randomPosition;
+        } 
+        else
+        {
+            if (NavMesh.SamplePosition(randomPosition, out NavMeshHit hits, 15f, NavMesh.AllAreas))
+            {
+                return hits.position;
+            }
         }
-        return finalPosition;
+        return Vector3.zero;
     }
 }

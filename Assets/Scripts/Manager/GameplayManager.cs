@@ -58,7 +58,6 @@ public class GameplayManager : MonoBehaviour
         playerLives = new List<int>();
         hordeScore = new List<float>();
 
-        remainingHordeCount = hordeFormations.Count;
 
         foreach (HordeData hordeHome in hordeHomeList)
         {
@@ -68,19 +67,20 @@ public class GameplayManager : MonoBehaviour
             hordeScore.Add(hordeFormation.score);
         }
 
+        remainingHordeCount = hordeFormations.Count;
         scoreByHome = (baseFlagSPM * Time.deltaTime) / 60f;
     }
 
     private void Start()
     {
-        SaveSystem.Instance.SaveData();
+        if (SaveSystem.Instance != null ) SaveSystem.Instance.SaveData();
+        else Debug.LogWarning("SaveSystem's Instance is null");
 
         foreach (HordeFormation hordeFormation in hordeFormations)
         {
             hordeFormation.OnDisableUpdateEnemyLayer += UpdateInteractableLayer;
-            hordeFormation.UpdatePlayerLives += PlayerLivesCounter;
+            hordeFormation.UpdatePlayerLives += PlayerLivesCounterRemake;
         }
-
     }
 
 
@@ -121,7 +121,9 @@ public class GameplayManager : MonoBehaviour
         eliminatedHorde.OnDisableUpdateEnemyLayer -= UpdateInteractableLayer;
     }
 
-    private void PlayerLivesCounter(HordeFormation respawningHorde)
+
+    //Logic error;
+    /*private void PlayerLivesCounter(HordeFormation respawningHorde)
     {
         for (int i = 0; i < hordeFormations.Count; i++)
         {
@@ -145,6 +147,35 @@ public class GameplayManager : MonoBehaviour
                     hordeFormation.UpdatePlayerLives -= PlayerLivesCounter;
                     return;
                 }
+            }
+        }
+    }*/
+
+
+
+    private void PlayerLivesCounterRemake(HordeFormation hordeFormation)
+    {
+        if (hordeFormation.GetUnitCount() != 0)
+        {
+            return;
+        }
+        else
+        {
+            int index = hordeFormations.IndexOf(hordeFormation);
+            Debug.Log(hordeFormation.name + "'s index : " + index);
+            playerLives[index]--;
+
+            if (playerLives[index] != 0)
+            {
+                hordeFormation.gameObject.transform.position = GetHomeTransform(hordeFormation).position;
+                hordeFormation.AddUnitForFree(GetHomeTransform(hordeFormation));
+            }
+            else
+            {
+                hordeFormation.gameObject.SetActive(false);
+                hordeFormation.gameObject.transform.position = GetHomeTransform(hordeFormation).position;
+
+                hordeFormation.UpdatePlayerLives -= PlayerLivesCounterRemake;
             }
         }
     }
@@ -171,6 +202,8 @@ public class GameplayManager : MonoBehaviour
         }
         return home;
     }
+
+
     public Material GetUnitMaterial(HordeFormation hordeFormation)
     {
         Material unitMaterial = null;
@@ -182,6 +215,8 @@ public class GameplayManager : MonoBehaviour
         }
         return unitMaterial;
     }
+
+
     public int GetPlayerRemainingLives(HordeFormation hordeFormation)
     {
         int playerIndex = hordeFormations.IndexOf(hordeFormation);

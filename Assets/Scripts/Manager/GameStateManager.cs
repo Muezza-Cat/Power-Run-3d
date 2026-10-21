@@ -84,7 +84,8 @@ public class GameStateManager : MonoBehaviour
 
                 OnStateChanged?.Invoke();
                 isGameOver = true;
-                SaveSystem.Instance.SaveData(); //Testing Phase 
+                if (SaveSystem.Instance != null) SaveSystem.Instance.SaveData(); //Testing Phase 
+                else Debug.LogWarning("SaveSystem Instance is null");
                 // Imp note : Null Reference Exception prevents the code below from executing; Make sure to keep risky code at the bottom with null checks after main logic ends.
                 break;
         }

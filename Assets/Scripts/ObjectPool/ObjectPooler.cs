@@ -23,13 +23,16 @@ public class ObjectPooler : MonoBehaviour
     [SerializeField] private int maxUnitCapacityInHorde = 25;
     private int numOfObjectsToPool;
 
-    private int totalNumOfCoins = 100;
+    [Header("Spawnable")]
+    [SerializeField] private int totalNumOfCoins = 250;
+    private int totalNumOfApples = 40;
 
 
     public enum PoolKey
     {
         Unit,
         Coin,
+        Apple,
     }
 
 
@@ -45,6 +48,7 @@ public class ObjectPooler : MonoBehaviour
 
         bigPool.Add(PoolKey.Unit, new Queue<GameObject>());
         bigPool.Add(PoolKey.Coin, new Queue<GameObject>());
+        bigPool.Add(PoolKey.Apple, new Queue<GameObject>());
 
 
         for (int i = 0; i < numOfObjectsToPool; i++)
@@ -128,5 +132,26 @@ public class ObjectPooler : MonoBehaviour
         coinToPool.SetActive(false);
 
         bigPool[PoolKey.Coin].Enqueue(coinToPool);
+    }
+
+
+    //Under Construction
+    public void SpawnApple(Vector3 spawnPosition, Quaternion spawnRotation)
+    {
+        GameObject appleToSpawn = bigPool[PoolKey.Apple].Dequeue();
+        appleToSpawn.SetActive(true);
+
+        appleToSpawn.transform.position = spawnPosition;
+        appleToSpawn.transform.rotation = spawnRotation;
+    }
+
+    public void DespawnApple(GameObject appleToPool)
+    {
+        appleToPool.transform.position = Vector3.zero;
+        appleToPool.transform.rotation = Quaternion.identity;
+
+        appleToPool.SetActive(false);
+
+        bigPool[PoolKey.Coin].Enqueue(appleToPool);
     }
 }

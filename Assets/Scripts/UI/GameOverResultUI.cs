@@ -80,7 +80,8 @@ public class GameOverResultUI : MonoBehaviour
         });
         restartButton.onClick.AddListener(() =>
         {
-            OnRestartLevel();
+            SceneLoader.ReloadSceneAsRestartGame();
+            //OnRestartLevel();
         });
         quitButton.onClick.AddListener(() =>
         {
@@ -201,7 +202,7 @@ public class GameOverResultUI : MonoBehaviour
             scoreUITemplate.gameObject.SetActive(true);
             scoreUITemplate.transform.localPosition = new Vector2(0f, i * -75f);
 
-            float scoreBarWidth = (sortedScoreList[i] / (sortedScoreList[i] + 110f)) * scoreBarWidthMax;
+            float scoreBarWidth = (sortedScoreList[i] / (ScoreUI.GetHighestScore() + 110f)) * scoreBarWidthMax;
             scoreUITemplate.Initialize(Mathf.FloorToInt(sortedScoreList[i]), scoreBarWidth + 10f);
             scoreUITemplate.scoreBar.color = gameplayManager.GetUnitMaterial(sortedHordeByScore[i]).color;
         }
@@ -248,29 +249,24 @@ public class GameOverResultUI : MonoBehaviour
     }
 
 
-    /*public bool IsLevelCompleted()
-    {
-        return isLevelCompleted;
-    }
-*/
 
     private void OnRestartLevel()
     {
         SceneLoader.ReloadSceneAsRestartGame();
 
-        if (UIManager.Instance == null) Debug.LogWarning("Null reference of UIManager's Object");
-        UIManager.Instance.DisableMainMenuUIContainer();
+        //if (UIManager.Instance == null) Debug.LogWarning("Null reference of UIManager's Object");
+        //UIManager.Instance.DisableMainMenuUIContainer();
 
-        touchInputSystem.Enable();
-        touchInputSystem.Touch.Touch.started += Touch_started;
-        UIManager.Instance.EnableTouchToStartUI();
+        //touchInputSystem.Enable();
+        //touchInputSystem.Touch.Touch.started += Touch_started;
+        //UIManager.Instance.EnableTouchToStartUI();
     }
 
     private void Touch_started(InputAction.CallbackContext obj)
     {
         UIManager.Instance.DisableTouchToStartUI();
         UIManager.Instance.EnableInGameUI();
-        UIManager.Instance.TogglePauseAndSettingsButton();
+        //UIManager.Instance.TogglePauseAndSettingsButton();
 
         touchInputSystem.Touch.Touch.started -= Touch_started;
         touchInputSystem.Touch.Disable();

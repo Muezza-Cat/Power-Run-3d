@@ -6,10 +6,12 @@ public class UnitAnimation : MonoBehaviour
     [SerializeField] private Animator animator;
 
     private const string MOVE = "Move";
+    private const string MOVE_FAST = "MoveFast";
     private const string FIGHT = "Fight";
     private const string DEAD = "Death";
 
     private int moveHash;
+    private int moveFastHash;
     private int fightHash;
     private int deathHash;
 
@@ -22,6 +24,7 @@ public class UnitAnimation : MonoBehaviour
         unit = GetComponentInParent<Unit>();
 
         moveHash = Animator.StringToHash(MOVE);
+        moveFastHash = Animator.StringToHash(MOVE_FAST);
         fightHash = Animator.StringToHash(FIGHT);
         deathHash = Animator.StringToHash(DEAD);
     }
