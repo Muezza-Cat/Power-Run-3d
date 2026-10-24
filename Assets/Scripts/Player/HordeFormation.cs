@@ -18,7 +18,7 @@ public class HordeFormation : MonoBehaviour
     public float hordeMorale { get; private set; }
     public int coins { get; set; }
     public int coinsAllTime;
-    [HideInInspector] public BaseController baseController; //Parent
+    private BaseController baseController; //Parent
     public Material unitMaterial;
 
 
@@ -53,6 +53,13 @@ public class HordeFormation : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scoreText;
 
 
+    private enum KingLocation
+    {
+        Front,
+        Center
+    }
+    [SerializeField] KingLocation kingLocation;
+
 
 
     private void Awake()
@@ -73,13 +80,15 @@ public class HordeFormation : MonoBehaviour
 
     private void Start()
     {
-        EvaluatePoints();
+        EvaluatePoints((kingLocation == KingLocation.Center)? true : false);
     }
 
     private void Update()
     {
         CalculateHordeMorale();
         AssignUnitPosition();
+
+        UpdateHordeSpeed();
         if (scoreText != null) scoreText.text = Mathf.FloorToInt(score).ToString();
     }
 
@@ -90,15 +99,24 @@ public class HordeFormation : MonoBehaviour
 
 
     //Unit position specification;
-    private void EvaluatePoints()
+    private void EvaluatePoints(bool kingInCenter)
     {
-        for (float z = 0; z < numberOfRows; z++)
+        float zPosMultiplier = (kingInCenter) ? 1f : -1f;
+        if (kingInCenter) numberOfRows++;
+
+
+        for (float z = 1; z <= numberOfRows; z++)
         {
             float zPos;
             zPos = z;
-            if (z > halfOfHordeLength)
+
+            if (kingInCenter)
             {
-                zPos = -(z - halfOfHordeLength);
+                zPos = zPos - 1;
+                if (zPos > halfOfHordeLength)
+                {
+                    zPos = -(zPos - halfOfHordeLength); //0, -1, -2, 1, 2
+                }
             }
 
             for (float x = 0; x < numberOfColumns; x++)
@@ -109,8 +127,11 @@ public class HordeFormation : MonoBehaviour
                 {
                     xPos = -(x - halfOfHordeWidth); //Order 0, 1 ,2 ,-1 ,-2; for 5 Columns.
                 }
-
-                Vector3 position = new Vector3(xPos * unitSpacingX, 0f, zPos * unitSpacingZ); //First (0,0);
+                Vector3 position = new Vector3(xPos * unitSpacingX, 0f, zPos * zPosMultiplier * unitSpacingZ);
+                if (kingInCenter && position == Vector3.zero) 
+                {
+                    continue;
+                }
                 position += GetSlotJitter();
                 points.Add(position);
 
@@ -275,5 +296,39 @@ public class HordeFormation : MonoBehaviour
         }
 
         return isNearAFlag;
+    }
+
+    public BaseController GetBaseController()
+    {
+        return baseController;
+    }
+
+
+    public int appleCount = 0;
+    private bool isOnSpeedup;
+    private float speedupMoveSpeed = 10f;
+
+    private float speedupTimeMax = 3f;
+    private float speedupElapsedTime = 0f;
+    private void UpdateHordeSpeed()
+    {
+        if (appleCount == 0) return;
+        baseController.SetCurrentMoveSpeed(speedupMoveSpeed);
+        isOnSpeedup = true;
+
+        speedupElapsedTime += Time.deltaTime;
+        if (speedupElapsedTime < speedupTimeMax) return;
+        speedupElapsedTime = 0f;
+
+        appleCount--;
+        if (appleCount > 0) return;
+
+        baseController.SetCurrentMoveSpeed(baseController.GetNormalMoveSpeed());
+        isOnSpeedup = false;
+    }
+
+    public bool IsOnSpeedUp()
+    {
+        return isOnSpeedup;
     }
 }

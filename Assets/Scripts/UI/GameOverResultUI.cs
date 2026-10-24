@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.Analytics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -28,6 +29,11 @@ public class GameOverResultUI : MonoBehaviour
     private GameStateManager gameStateManager;
     private TouchInputSystem touchInputSystem;
     [SerializeField] private HordeFormation playerHorde;
+
+    [SerializeField] private Image resultImage;
+    [SerializeField] private Sprite victorySprite;
+    [SerializeField] private GameObject stars;
+    [SerializeField] private Sprite defeatSprite;
 
     [SerializeField] private TextMeshProUGUI resultText; //Win or Lose;
     [SerializeField] private TextMeshProUGUI obtainedRankText;
@@ -209,22 +215,28 @@ public class GameOverResultUI : MonoBehaviour
 
         if (winnerHorde == playerHorde)
         {
+            resultImage.sprite = victorySprite;
             resultText.text = WIN;
+            resultText.color = Color.blue;
+            stars.SetActive(true);
             obtainedRankText.text = "Your Rank : #1";
             winnerText.text = "Winner : " + winnerHorde.name;
 
             winnerText.color = gameplayManager.GetUnitMaterial(winnerHorde).color;
 
-            HideUIButton(new Button[] { quitButton, restartButton, quitButton }); //Just for formality;
-            ShowUIButton(new Button[] { quitButton, restartButton, quitButton });
+            HideUIButton(new Button[] { nextButton, restartButton, quitButton }); //Just for formality;
+            ShowUIButton(new Button[] { nextButton, restartButton, quitButton });
         }
         else
         {
+            resultImage.sprite = defeatSprite;
             resultText.text = LOSE;
+            resultText.color = Color.red;
+            stars.SetActive(false);
             obtainedRankText.text = "Your Rank : #" + (sortedHordeByScore.IndexOf(playerHorde) + 1).ToString();
             winnerText.text = winnerHorde.name;
 
-            HideUIButton(new Button[] { quitButton, restartButton, quitButton });
+            HideUIButton(new Button[] { nextButton, restartButton, quitButton });
             ShowUIButton(new Button[] {quitButton, restartButton});
         }
     }

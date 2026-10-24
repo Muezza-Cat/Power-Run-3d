@@ -8,9 +8,11 @@ public class PlayerController : BaseController
     private CharacterController controller;
     [HideInInspector] public HordeFormation hordeFormation;
     [SerializeField] private TextMeshProUGUI coinsAmountText;
+    private Animator animator;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 4f;
+    private float normalMoveSpeed;
 
     [Header("Settings")]
     private Vector3 moveDirection;
@@ -23,11 +25,19 @@ public class PlayerController : BaseController
     [Header("Flag")]
     private bool canMove;
 
+    [Header("Animator")]
+    private string MOVE = "Move";
+    private int moveHash;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         hordeFormation = GetComponent<HordeFormation>();
+        animator = GetComponentInChildren<Animator>();
+
+        normalMoveSpeed = moveSpeed;
+
+        moveHash = Animator.StringToHash(MOVE);
     }
 
     private void Update()
@@ -43,7 +53,13 @@ public class PlayerController : BaseController
 
     private void MovementHandler()
     {
-        if (InputManager.Instance.GetMoveDirection() == Vector2.zero) return;
+        if (InputManager.Instance.GetMoveDirection() == Vector2.zero)
+        {
+            animator.SetBool(moveHash, false);
+            return;
+        }
+        animator.SetBool(moveHash, true);
+
         moveDirection = new Vector3(InputManager.Instance.GetMoveDirection().x, 0f, InputManager.Instance.GetMoveDirection().y).normalized;
 
         Vector3 point1 = transform.position + Vector3.up * +0.5f;
@@ -94,9 +110,14 @@ public class PlayerController : BaseController
         return new Vector3(0f, Mathf.Atan2(InputManager.Instance.GetMoveDirection().x, InputManager.Instance.GetMoveDirection().y) * Mathf.Rad2Deg, 0f);
     }
 
-    public override float GetMoveSpeed()
+    public override float GetNormalMoveSpeed()
     {
-        return moveSpeed;
+        return normalMoveSpeed;
+    }
+
+    public override void SetCurrentMoveSpeed(float newMoveSpeed)
+    {
+        moveSpeed = newMoveSpeed;
     }
 
     public override LayerMask GetInteractableLayers()
@@ -114,4 +135,10 @@ public class PlayerController : BaseController
         //return InputManager.Instance.GetMoveDirection().sqrMagnitude > 0.2f * 0.2f;
         return InputManager.Instance.GetMoveDirection().sqrMagnitude > 0.01f * 0.01f;
     }
+
+    public override void UpdateMoveSpeed(float updatedMoveSpeed)
+    {
+        moveSpeed = updatedMoveSpeed;
+    }
+    public override void AddHomeAsWaypoint(Transform homeTransform) { }
 }

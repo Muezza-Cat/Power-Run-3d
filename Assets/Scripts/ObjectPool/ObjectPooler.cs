@@ -10,13 +10,16 @@ public class ObjectPooler : MonoBehaviour
     public static ObjectPooler Instance { get; private set; }
     #endregion
 
+
+
     [Header("Collection")]
-    public Queue<GameObject> pool;
+    //public Queue<GameObject> pool;
     public Dictionary<PoolKey, Queue<GameObject>> bigPool;
 
     [Header("Reference")]
     [SerializeField] private GameObject unit;
     [SerializeField] private GameObject coin;
+    [SerializeField] private GameObject apple;
 
     [Header("Settings")]
     private int numberOfHordes;
@@ -24,8 +27,8 @@ public class ObjectPooler : MonoBehaviour
     private int numOfObjectsToPool;
 
     [Header("Spawnable")]
-    [SerializeField] private int totalNumOfCoins = 250;
-    private int totalNumOfApples = 40;
+    public int totalNumOfCoins = 250;
+    public int totalNumOfApples = 40;
 
 
     public enum PoolKey
@@ -76,6 +79,19 @@ public class ObjectPooler : MonoBehaviour
             obj.SetActive(false);
 
             bigPool[PoolKey.Coin].Enqueue(obj);
+        }
+
+        for (int i = 0; i < totalNumOfApples; i++)
+        {
+            if (apple == null)
+            {
+                Debug.LogWarning("Null reference of ApplePrefab in ObjectPooler.cs");
+                break;
+            }
+            GameObject obj = Instantiate(apple, transform.position, Quaternion.identity);
+            obj.SetActive(false);
+
+            bigPool[PoolKey.Apple].Enqueue(obj);
         }
 
         //pool = new Queue<GameObject>();
@@ -152,6 +168,6 @@ public class ObjectPooler : MonoBehaviour
 
         appleToPool.SetActive(false);
 
-        bigPool[PoolKey.Coin].Enqueue(appleToPool);
+        bigPool[PoolKey.Apple].Enqueue(appleToPool);
     }
 }

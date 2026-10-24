@@ -23,6 +23,7 @@ public class EnemyController : BaseController
     [Header("Reference")]
     private NavMeshAgent agent;
     private HordeFormation enemyControllerHordeFormation;
+    private Animator animator;
 
     [Header("Collection")]
     [SerializeField] private List<Transform> waypoints;
@@ -37,9 +38,16 @@ public class EnemyController : BaseController
     private float updateMethodElapsedTime = 0f;
     private float safeDistance = 10f;
     private float moraleThreshold = 1.25f;
+    private float normalMoveSpeed = 4f;
 
     [Header("LayerMask")]
     public LayerMask interactableLayer;
+
+    [Header("Animator")]
+    private string MOVE = "Move";
+    private int moveHash;
+
+
 
 
 
@@ -51,6 +59,10 @@ public class EnemyController : BaseController
 
         enemyControllerHordeFormation = GetComponent<HordeFormation>();
         agent = GetComponent<NavMeshAgent>();
+        animator = GetComponentInChildren<Animator>();
+
+
+        moveHash = Animator.StringToHash(MOVE);
     }
 
     public void Start()
@@ -67,6 +79,7 @@ public class EnemyController : BaseController
         if (updateMethodElapsedTime < updateMethodCooldownTime) return;
         updateMethodElapsedTime = 0f;
 
+        PlayAnimation();
         SelectStrategy();
         StrategyStateMachine();
 
@@ -91,9 +104,14 @@ public class EnemyController : BaseController
         }
     }
 
+    private void PlayAnimation()
+    {
+        if (IsMoving()) animator.SetBool(moveHash, true);
+        else animator.SetBool(moveHash, false);
+    }
 
 
-    //Strategy;
+    //Strategy; Not currently in use, Plan Abort;
     private enum Strategy
     {
         AddUnit,
@@ -310,11 +328,16 @@ public class EnemyController : BaseController
         return rotation.eulerAngles;
     }
 
-    public override float GetMoveSpeed()
+    public override float GetNormalMoveSpeed()
     {
-        return agent.speed;
+        return normalMoveSpeed;
     }
-
+    
+    
+    public override void SetCurrentMoveSpeed(float newMoveSpeed)
+    {
+        agent.speed = newMoveSpeed;
+    }
 
     public override LayerMask GetInteractableLayers()
     {
@@ -329,5 +352,15 @@ public class EnemyController : BaseController
     public override bool IsMoving()
     {
         return agent.velocity.sqrMagnitude > 0.01f * 0.01f;
+    }
+
+    public override void UpdateMoveSpeed(float updatedMoveSpeed)
+    {
+        agent.speed = updatedMoveSpeed;
+    }
+
+    public override void AddHomeAsWaypoint(Transform homeTransform)
+    {
+        waypoints.Add(homeTransform);
     }
 }

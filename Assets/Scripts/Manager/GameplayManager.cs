@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -65,11 +66,21 @@ public class GameplayManager : MonoBehaviour
             hordeFormations.Add(hordeFormation);
             playerLives.Add(Lives);
             hordeScore.Add(hordeFormation.score);
+
+            StartCoroutine(AddHomeAsWaypointRoutine(hordeFormation, hordeHome.home));
         }
 
         remainingHordeCount = hordeFormations.Count;
         scoreByHome = (baseFlagSPM * Time.deltaTime) / 60f;
     }
+
+
+    private IEnumerator AddHomeAsWaypointRoutine(HordeFormation hordeFormation, Transform homeTransform)
+    {
+        yield return new WaitForSeconds(0.5f);
+        hordeFormation.GetBaseController().AddHomeAsWaypoint(homeTransform);
+    }
+
 
     private void Start()
     {
@@ -115,7 +126,7 @@ public class GameplayManager : MonoBehaviour
         foreach (HordeFormation hordeFormation in hordeFormations)
         {
             if (hordeFormation == eliminatedHorde) continue;
-            hordeFormation.baseController.RemoveDeadEnemyLayer(layer);
+            hordeFormation.GetBaseController().RemoveDeadEnemyLayer(layer);
         }
 
         eliminatedHorde.OnDisableUpdateEnemyLayer -= UpdateInteractableLayer;

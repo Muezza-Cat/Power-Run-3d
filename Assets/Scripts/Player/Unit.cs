@@ -1,8 +1,6 @@
-using Mono.Cecil;
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
 
 
 
@@ -10,6 +8,8 @@ public class Unit : MonoBehaviour
 {
     #region Events
     public event Action OnPositionChanged;
+    public event Action OnSpeedupConsumed;
+    public event Action OnSpeedupFinished;
     public event Action OnPositionUnchanged;
     public event Action OnFightEvent;
     public event Action OnUnitDead;
@@ -37,9 +37,8 @@ public class Unit : MonoBehaviour
             if (value <= 0f)
             {
                 this.gameObject.layer = 0;
-                OnUnitDead?.Invoke();
-                StartCoroutine(TimedEliminationRoutine());
                 currentHealth = 0f;
+                StartCoroutine(TimedEliminationRoutine());
                 return;
             }
 
@@ -57,14 +56,14 @@ public class Unit : MonoBehaviour
 
     //Linear Velocity
     private float crestMoveSpeed = 8f;
-    private float troughMoveSpeed = 3f;
+    private float troughMoveSpeed = 5f;
     private float currentMoveSpeed;
     private float movementThreshold = 0.05f;
 
-    //Angular Velocity
-    private float crestAngularVelocity = 15f;
-    private float troughAngularVelocity = 6f;
-    private float currentAngularVelocity;
+    /*//Angular Velocity
+    private float crestAngularVelocity = 25f;
+    private float troughAngularVelocity = 15f;
+    private float currentAngularVelocity;*/
 
     private float sqrDistanceFromTargetPosition = 0f;
 
@@ -87,7 +86,7 @@ public class Unit : MonoBehaviour
     {
         CurrentHealth = UnityEngine.Random.Range(troughHP, crestHP);
         currentMoveSpeed = UnityEngine.Random.Range(troughMoveSpeed, crestMoveSpeed);
-        currentAngularVelocity = UnityEngine.Random.Range(troughAngularVelocity, crestAngularVelocity);
+        //currentAngularVelocity = UnityEngine.Random.Range(troughAngularVelocity, crestAngularVelocity);
     }
 
 
@@ -95,7 +94,7 @@ public class Unit : MonoBehaviour
     public void Initialize(HordeFormation hordeFormation)
     {
         this.hordeFormation = hordeFormation;
-        baseController = hordeFormation.baseController;
+        baseController = hordeFormation.GetBaseController();
 
         foreach(SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRendererList)
         {
@@ -114,8 +113,8 @@ public class Unit : MonoBehaviour
         //IndependentMovementHandler();
         IndependentMovementHandlerRemake();
         IndependentRotationHandler();
-
-        UpdateLinearAndAngularVelocity();
+        UnitSpeedCalculator();
+        //UpdateLinearAndAngularVelocity();
     }
 
 
@@ -162,11 +161,37 @@ public class Unit : MonoBehaviour
     }*/
 
 
+    private float speedOffsetWithSpeedup = 8f;
+
+    private float speedCalculationCooldownTime = 0.2f;
+    private float speedCalculationElapsedTime = 0f;
+    private void UnitSpeedCalculator()
+    {
+        speedCalculationElapsedTime += Time.deltaTime;
+        if (speedCalculationElapsedTime < speedCalculationCooldownTime) return;
+        speedCalculationElapsedTime = 0f;
+
+
+        if (hordeFormation.IsOnSpeedUp())
+        {
+            currentMoveSpeed = UnityEngine.Random.Range(troughMoveSpeed + speedOffsetWithSpeedup, crestMoveSpeed + speedOffsetWithSpeedup);
+            OnSpeedupConsumed?.Invoke();
+        }
+        else
+        {
+            currentMoveSpeed = UnityEngine.Random.Range(troughMoveSpeed, crestMoveSpeed);
+            OnSpeedupFinished?.Invoke();
+        }
+    }
+
 
     //Solution #1
     // => find the way with vectors instead of rigid axes.
+    public bool isFighting = false;
     private void IndependentMovementHandlerRemake()
     {
+        if (isFighting) return;
+        
         sqrDistanceFromTargetPosition = (targetPosition - transform.position).sqrMagnitude;
 
         PlayAnimation(sqrDistanceFromTargetPosition);
@@ -220,6 +245,7 @@ public class Unit : MonoBehaviour
     }
 
 
+    /*
     private float velocityUpdateCooldown = 0.5f;
     private float velocityUpdateElapsedTime = 0f;
     private void UpdateLinearAndAngularVelocity()
@@ -229,32 +255,35 @@ public class Unit : MonoBehaviour
 
         currentMoveSpeed = UnityEngine.Random.Range(troughMoveSpeed, crestMoveSpeed);
         currentAngularVelocity = UnityEngine.Random.Range(troughAngularVelocity, crestAngularVelocity);
-    }
+    }*/
 
 
 
-    private float hitCooldownTime = 3f;
-    private float hitElapsedTime = 3f;
+    private float hitCooldownTime = 1.5f;
+    private float hitElapsedTime = 1.5f;
     private void FightAtSight()
     {
+
         Collider[] collider = Physics.OverlapSphere(transform.position, attackRange, hordeFormation.enemyLayer, QueryTriggerInteraction.Ignore);
-        if (collider == null || collider.Length == 0) return;
+        if (collider == null || collider.Length == 0)
+        {
+            isFighting = false;
+            return;
+        }
 
-        targetPosition = collider[0].transform.position;
-
+        OnFightEvent?.Invoke(); //Animation Playing;
         hitElapsedTime += Time.deltaTime;
+
+        //Rotation and Animation;
+        Unit unit = collider[0].GetComponent<Unit>();
+        Vector3 lookDirection = (unit.transform.position - transform.position).normalized;
+        if(lookDirection != Vector3.zero) transform.forward = lookDirection;
+
+
         if (hitElapsedTime < hitCooldownTime) return;
         hitElapsedTime = 0f;
 
-        Unit unit = collider[0].GetComponent<Unit>();
-
         unit.TakeDamage(damageAmount);
-
-        //Rotation and Animation;
-        Vector3 lookDirection = (unit.transform.position - transform.position).normalized;
-        if(lookDirection != Vector3.zero) transform.rotation = Quaternion.LookRotation(lookDirection);
-        OnFightEvent?.Invoke();
-
     }
 
     //private void FightOnlyAtSight()
@@ -326,7 +355,9 @@ public class Unit : MonoBehaviour
 
     private IEnumerator TimedEliminationRoutine()
     {
-        yield return new WaitForSeconds(3.5f);
+        yield return new WaitForSeconds(1f);
+        OnUnitDead?.Invoke();
+        yield return new WaitForSeconds(0.5f);
         hordeFormation.RemoveUnit(this.transform);
     }
 
