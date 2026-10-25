@@ -11,7 +11,6 @@ public class EnemyController : BaseController
     [HideInInspector] public float moraleCount { get; private set; }
     private DifficultyMode.DifficultyModes mode; //EnemyController difficulty mode;
 
-
     private enum Decision
     {
         Fight,
@@ -53,6 +52,8 @@ public class EnemyController : BaseController
 
     private void Awake()
     {
+        poolKey = ObjectPooler.PoolKey.EnemyUnit;
+
         threatNearby = new List<HordeFormation>();
         path = new NavMeshPath();
 
@@ -80,7 +81,7 @@ public class EnemyController : BaseController
         updateMethodElapsedTime = 0f;
 
         PlayAnimation();
-        SelectStrategy();
+        //SelectStrategy();
         StrategyStateMachine();
 
         if (mode == 0) Debug.LogWarning("No Mode set for the EnemyController " + this.name);
@@ -119,9 +120,9 @@ public class EnemyController : BaseController
     }
     private Strategy strategy = Strategy.AddUnit;
 
-    private void SelectStrategy()
+    /*private void SelectStrategy()
     {
-        if (enemyControllerHordeFormation.GetUnitCount() == enemyControllerHordeFormation.GetMaxNumberOfPosition())
+        if (enemyControllerHordeFormation.GetUnitCount() == enemyControllerHordeFormation.GetPositions().Count)
         {
             strategy = Strategy.UpgradeStats;
         }
@@ -129,7 +130,7 @@ public class EnemyController : BaseController
         {
             strategy = Strategy.AddUnit;
         }
-    }
+    }*/
 
     private void StrategyStateMachine()
     {

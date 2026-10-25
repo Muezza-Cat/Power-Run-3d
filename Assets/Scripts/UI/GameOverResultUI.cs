@@ -217,7 +217,7 @@ public class GameOverResultUI : MonoBehaviour
         {
             resultImage.sprite = victorySprite;
             resultText.text = WIN;
-            resultText.color = Color.blue;
+            resultText.color = Color.white;
             stars.SetActive(true);
             obtainedRankText.text = "Your Rank : #1";
             winnerText.text = "Winner : " + winnerHorde.name;

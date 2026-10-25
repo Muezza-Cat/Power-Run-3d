@@ -3,6 +3,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+
 public class UnitTemplateUI : MonoBehaviour
 {
     #region Events
@@ -18,15 +20,19 @@ public class UnitTemplateUI : MonoBehaviour
 
 
     [Header("Reference")]
+    public UnitTemplateSO unitTemplateSO;
     private UnitSelectionWindowUI unitSelectionWindowUI;
-    public Image unitImage;
-    public Image backgroundImage;
 
-    public Button selectionButton;
+
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private Image unitImage;
+    [SerializeField] private TextMeshProUGUI unitNameText;
+    [SerializeField] private Button selectionButton;
     private TextMeshProUGUI selectionButtonText;
 
 
     [Header("Settings")]
+    public string UNIT_NAME;
     private const string SELECTED = "Selected";
     private const string SELECT = "Select";
 
@@ -40,17 +46,21 @@ public class UnitTemplateUI : MonoBehaviour
     private void Awake()
     {
         unitSelectionWindowUI = GetComponentInParent<UnitSelectionWindowUI>();
+        selectionButtonText = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
+
+        unitNameText.text = UNIT_NAME;
     }
 
 
     private void Start()
     {
-        selectionButtonText = selectionButton.GetComponentInChildren<TextMeshProUGUI>();
-
         unitSelectionWindowUI.ResetAllTemplates += ResetToDefault;
+
+        if (isSelected) DisplayAsSelected();
 
         selectionButton.onClick.AddListener(() =>
         {
+            //UI Part;
             if (isSelected) return;
 
             OnTemplateUpdated?.Invoke(this, new OnTemplateUpdatedEventArgs() { unitTempalteUI = this});
@@ -80,5 +90,22 @@ public class UnitTemplateUI : MonoBehaviour
         Color color = backgroundImage.color;
         color.a = bgDefaultAlphaValue;
         backgroundImage.color = color;
+    }
+
+
+    //Under Construction;
+    public class SaveSystem
+    {
+        public bool isSelected;
+    }
+
+    public void Save()
+    {
+
+    }
+
+    public void Load()
+    {
+
     }
 }

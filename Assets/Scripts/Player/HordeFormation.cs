@@ -1,7 +1,8 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
 using TMPro;
-using System;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public class HordeFormation : MonoBehaviour
@@ -81,6 +82,7 @@ public class HordeFormation : MonoBehaviour
     private void Start()
     {
         EvaluatePoints((kingLocation == KingLocation.Center)? true : false);
+        AddStartingUnits(points);
     }
 
     private void Update()
@@ -137,19 +139,33 @@ public class HordeFormation : MonoBehaviour
 
                 float distanceFromPoint = Vector3.Distance(position, Vector3.zero);
                 distanceFromPoints.Add(distanceFromPoint);
-
-                if (units.Count < startingUnitsCount)
-                {
-                    GameObject unitToSpawn = ObjectPooler.Instance.SpawnUnit(transform.TransformPoint(position), Quaternion.identity, this);
-                    unitToSpawn.GetComponent<Unit>().targetPosition = transform.TransformPoint(position);
-                    units.Add(unitToSpawn.transform);
-
-                    unitToSpawn.layer = lookTransform.gameObject.layer;
-                    unitToSpawn.GetComponent<Unit>().Initialize(this);
-                }
             }
         }
     }
+
+    public void AddStartingUnits(List<Vector3> positions)
+    {
+        if (positions == null || positions.Count == 0)
+        {
+            Debug.LogError("There are no positions for units to spawn!");
+            return;
+        }
+
+        foreach (Vector3 position in positions)
+        {
+            if (units.Count >= startingUnitsCount) break;
+
+            GameObject unitToSpawn = ObjectPooler.Instance.SpawnUnit(transform.TransformPoint(position), Quaternion.identity, this);
+            unitToSpawn.GetComponent<Unit>().targetPosition = transform.TransformPoint(position);
+            units.Add(unitToSpawn.transform);
+
+            unitToSpawn.layer = lookTransform.gameObject.layer;
+            unitToSpawn.GetComponent<Unit>().Initialize(this);
+        }
+        //Testing
+        if (this == GameplayManager.Instance.playerHorde) Debug.Log("Added units in the PlayerHorde");
+    }
+
 
     private void AssignUnitPosition()
     {
@@ -208,8 +224,24 @@ public class HordeFormation : MonoBehaviour
         //unit.gameObject.layer = 0;
         ObjectPooler.Instance.DespawnUnit(unit.gameObject);
         UpdatePlayerLives?.Invoke(this);
-        if (this.TryGetComponent<PlayerController>(out PlayerController controller)) Debug.Log("Removed Unit : " + units.Count);
-        //StartCoroutine(DespawnLater(unit));
+        //if (this.TryGetComponent<PlayerController>(out PlayerController controller)) Debug.Log("Removed Unit : " + units.Count);
+    }
+
+    public void ClearUnitsList()
+    {
+        for (int i = 0; i < startingUnitsCount; i++)
+        {
+            Transform unitToRemove = units[0];
+            units.Remove(unitToRemove);
+            Debug.Log("Cleared unit from the list, units.Count : " + units.Count);
+            Destroy(unitToRemove.gameObject);
+        }
+        if (units == null) Debug.Log("Units is null");
+    }
+
+    public int GetStartingUnitsCount()
+    {
+        return startingUnitsCount;
     }
 
     
@@ -273,9 +305,11 @@ public class HordeFormation : MonoBehaviour
         return occupiedFlags;
     }
 
-    public int GetMaxNumberOfPosition()
+
+
+    public List<Vector3> GetUnitPositionList()
     {
-        return points.Count;
+        return points;
     }
 
     private Flag nearestFlag;

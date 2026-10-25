@@ -17,7 +17,10 @@ public class ObjectPooler : MonoBehaviour
     public Dictionary<PoolKey, Queue<GameObject>> bigPool;
 
     [Header("Reference")]
-    [SerializeField] private GameObject unit;
+    //Testing
+    [SerializeField] private GameObject playerUnit;
+    [SerializeField] private GameObject enemyUnit;
+    //[SerializeField] private GameObject unit;
     [SerializeField] private GameObject coin;
     [SerializeField] private GameObject apple;
 
@@ -33,6 +36,8 @@ public class ObjectPooler : MonoBehaviour
 
     public enum PoolKey
     {
+        EnemyUnit,
+        PlayerUnit,
         Unit,
         Coin,
         Apple,
@@ -53,8 +58,12 @@ public class ObjectPooler : MonoBehaviour
         bigPool.Add(PoolKey.Coin, new Queue<GameObject>());
         bigPool.Add(PoolKey.Apple, new Queue<GameObject>());
 
+        //Testing
+        bigPool.Add(PoolKey.PlayerUnit, new Queue<GameObject>());
+        bigPool.Add(PoolKey.EnemyUnit, new Queue<GameObject>());
 
-        for (int i = 0; i < numOfObjectsToPool; i++)
+
+        /*for (int i = 0; i < numOfObjectsToPool; i++)
         {
             if (unit == null)
             {
@@ -65,6 +74,34 @@ public class ObjectPooler : MonoBehaviour
             obj.SetActive(false);
 
             bigPool[PoolKey.Unit].Enqueue(obj);
+        }*/
+
+
+        for (int i = 0; i < numOfObjectsToPool; i++)
+        {
+            if (enemyUnit == null)
+            {
+                Debug.LogWarning("Null reference of EnemyUnitPrefab in ObjectPooler.cs");
+                break;
+            }
+            GameObject obj = Instantiate(enemyUnit, transform.position, Quaternion.identity);
+            obj.SetActive(false);
+
+            bigPool[PoolKey.EnemyUnit].Enqueue(obj);
+        }
+
+
+        for (int i = 0; i < maxUnitCapacityInHorde + 5f; i++)
+        {
+            if (playerUnit == null)
+            {
+                Debug.LogWarning("Null reference of PlayerUnitPrefab in ObjectPooler.cs");
+                break;
+            }
+            GameObject obj = Instantiate(playerUnit, transform.position, Quaternion.identity);
+            obj.SetActive(false);
+
+            bigPool[PoolKey.PlayerUnit].Enqueue(obj);
         }
 
 
@@ -109,9 +146,22 @@ public class ObjectPooler : MonoBehaviour
     }
 
 
-    public GameObject SpawnUnit(Vector3 spawnPosition, Quaternion spawnRotation, HordeFormation hordeFormation)
+    /*public GameObject SpawnUnit(Vector3 spawnPosition, Quaternion spawnRotation, HordeFormation hordeFormation)
     {
         GameObject unitToSpawn = bigPool[PoolKey.Unit].Dequeue();
+
+        unitToSpawn.transform.position = spawnPosition;
+        unitToSpawn.transform.rotation = spawnRotation;
+        
+        unitToSpawn.SetActive(true);
+
+        return unitToSpawn;
+    }*/
+
+    //Testing
+    public GameObject SpawnUnit(Vector3 spawnPosition, Quaternion spawnRotation, HordeFormation hordeFormation)
+    {
+        GameObject unitToSpawn = bigPool[hordeFormation.GetBaseController().poolKey].Dequeue();
 
         unitToSpawn.transform.position = spawnPosition;
         unitToSpawn.transform.rotation = spawnRotation;
@@ -169,5 +219,33 @@ public class ObjectPooler : MonoBehaviour
         appleToPool.SetActive(false);
 
         bigPool[PoolKey.Apple].Enqueue(appleToPool);
+    }
+
+
+
+    public void ChangeUnitInPool(GameObject newTypeOfUnit)
+    {
+        if (newTypeOfUnit == null) 
+        {
+            Debug.Log("newTypeOfUnitIsNull");
+            return;
+        }
+
+        while (bigPool[PoolKey.PlayerUnit].Count > 0)
+        {
+            GameObject obj = bigPool[PoolKey.PlayerUnit].Dequeue();
+            if (obj != null)
+            {
+                Destroy(obj);
+            }
+        }
+
+
+        for (int i = 0; i < maxUnitCapacityInHorde + 5; i++)
+        {
+            GameObject unit = Instantiate(newTypeOfUnit, transform.position, Quaternion.identity);
+            unit.SetActive(false);
+            bigPool[PoolKey.PlayerUnit].Enqueue(unit);
+        }
     }
 }

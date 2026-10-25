@@ -2618,7 +2618,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 892b7e6180c7190439ba289335749ac6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
-  unit: {fileID: 7527805401979450706, guid: 7e6e5ff87abeefa4295f83d335855511, type: 3}
+  playerUnit: {fileID: 1606037529433101695, guid: 3541b1bdaddaa2d42b27440ec6043b94, type: 3}
+  enemyUnit: {fileID: 7527805401979450706, guid: 7e6e5ff87abeefa4295f83d335855511, type: 3}
   coin: {fileID: 6384939856516394034, guid: cc0e16b5186359741a9643d2b9ee32df, type: 3}
   apple: {fileID: 1760411025357657607, guid: 5b96440f5adbb154e9ab819adaca348e, type: 3}
   maxUnitCapacityInHorde: 25
@@ -3611,7 +3612,7 @@ RectTransform:
   m_Father: {fileID: 1167159961}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6591,7 +6592,7 @@ RectTransform:
   m_Father: {fileID: 1830474053}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -9784,7 +9785,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &775938992
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10012,7 +10013,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -471, y: 0}
+  m_AnchoredPosition: {x: 450, y: 0}
   m_SizeDelta: {x: 350, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &788532202
@@ -10027,9 +10028,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ee0efc5ca237d54db3b9e924d66fc77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitTemplateUI
-  unitImage: {fileID: 1781027194}
+  unitTemplateSO: {fileID: 11400000, guid: 17a0db8184d9a244096a52e34b618c7a, type: 2}
   backgroundImage: {fileID: 460156910}
+  unitImage: {fileID: 1781027194}
+  unitNameText: {fileID: 1436549264}
   selectionButton: {fileID: 1751877209}
+  UNIT_NAME: Basic Unit 3
   isSelected: 0
 --- !u!1 &795619310
 GameObject:
@@ -10587,7 +10591,7 @@ RectTransform:
   m_Father: {fileID: 1731797711}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -12569,9 +12573,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ee0efc5ca237d54db3b9e924d66fc77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitTemplateUI
-  unitImage: {fileID: 1712172045}
-  backgroundImage: {fileID: 1656755313}
-  selectionButton: {fileID: 1152201394}
+  unitTemplateSO: {fileID: 0}
+  backgroundImage: {fileID: 0}
+  unitImage: {fileID: 0}
+  unitNameText: {fileID: 0}
+  selectionButton: {fileID: 0}
+  UNIT_NAME: 
   isSelected: 0
 --- !u!1001 &977883969
 PrefabInstance:
@@ -13101,7 +13108,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &992583921
 RectTransform:
   m_ObjectHideFlags: 0
@@ -17936,7 +17943,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1352402372
 RectTransform:
   m_ObjectHideFlags: 0
@@ -20075,7 +20082,7 @@ RectTransform:
   m_Father: {fileID: 48661805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -20510,7 +20517,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -450, y: 0}
   m_SizeDelta: {x: 350, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1576073090
@@ -20525,9 +20532,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ee0efc5ca237d54db3b9e924d66fc77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitTemplateUI
-  unitImage: {fileID: 1252350106}
+  unitTemplateSO: {fileID: 11400000, guid: f7e837beaf2be21498554857643776dd, type: 2}
   backgroundImage: {fileID: 1720540397}
+  unitImage: {fileID: 1252350106}
+  unitNameText: {fileID: 914747751}
   selectionButton: {fileID: 1519139165}
+  UNIT_NAME: Basic Unit 1
   isSelected: 0
 --- !u!1 &1580520332
 GameObject:
@@ -20576,94 +20586,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1606365303}
-  - component: {fileID: 1606365302}
-  - component: {fileID: 1606365301}
-  - component: {fileID: 1606365300}
+  - component: {fileID: 1606365304}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: UnitSelector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &1606365300
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606365299}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &1606365301
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606365299}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_ForceMeshLod: -1
-  m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_MaskInteraction: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1606365302
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1606365299}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &1606365303
 Transform:
   m_ObjectHideFlags: 0
@@ -20679,6 +20609,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &1606365304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1606365299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88c218e4af30ec14d9ac7ea01a992577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitSelector
 --- !u!1 &1607796193
 GameObject:
   m_ObjectHideFlags: 0
@@ -24678,7 +24620,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1820524014
 RectTransform:
   m_ObjectHideFlags: 0
@@ -27713,7 +27655,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2019168811
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28473,7 +28415,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 439, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 350, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2088705447
@@ -28488,9 +28430,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ee0efc5ca237d54db3b9e924d66fc77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitTemplateUI
-  unitImage: {fileID: 224976911}
+  unitTemplateSO: {fileID: 11400000, guid: 3d8720e972378db48b2bcc14e71e5f08, type: 2}
   backgroundImage: {fileID: 2042277182}
+  unitImage: {fileID: 224976911}
+  unitNameText: {fileID: 572059887}
   selectionButton: {fileID: 1383786307}
+  UNIT_NAME: Basic Unit 2
   isSelected: 0
 --- !u!1001 &2089611988
 PrefabInstance:
@@ -32368,6 +32313,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 272b8b919c913ac46a0f5d9489e76c92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZombieHordeController
+  poolKey: 0
   hordeFormation: {fileID: 0}
   coinsAmountText: {fileID: 0}
   moveSpeed: 4
@@ -32475,7 +32421,7 @@ MonoBehaviour:
   coinsAllTime: 0
   unitMaterial: {fileID: 2100000, guid: 28d7b5a370476854fbb04a8448eeb51e, type: 2}
   lookTransform: {fileID: 880833668273394357}
-  startingUnitsCount: 20
+  startingUnitsCount: 3
   unitSpacingX_Axis: 1
   unitSpacingZ_Axis: 1
   formationJitter: 0
@@ -33635,6 +33581,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff51bbc9957ab9a419e3687f76492857, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AI
+  poolKey: 0
   waypoints:
   - {fileID: 596130413}
   - {fileID: 508215361}
@@ -33659,6 +33606,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff51bbc9957ab9a419e3687f76492857, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AI
+  poolKey: 0
   waypoints:
   - {fileID: 596130413}
   - {fileID: 508215361}
@@ -33683,6 +33631,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff51bbc9957ab9a419e3687f76492857, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AI
+  poolKey: 0
   waypoints:
   - {fileID: 596130413}
   - {fileID: 508215361}
@@ -34466,7 +34415,7 @@ MonoBehaviour:
   coinsAllTime: 0
   unitMaterial: {fileID: 2100000, guid: 515c1870fd23ff049a030c0f16ac0547, type: 2}
   lookTransform: {fileID: 5718548621680730003}
-  startingUnitsCount: 20
+  startingUnitsCount: 3
   unitSpacingX_Axis: 1
   unitSpacingZ_Axis: 1
   formationJitter: 0
@@ -34492,7 +34441,7 @@ MonoBehaviour:
   coinsAllTime: 0
   unitMaterial: {fileID: 2100000, guid: 307596892eeb27f46bfc909799014b5e, type: 2}
   lookTransform: {fileID: 5718548622295613416}
-  startingUnitsCount: 20
+  startingUnitsCount: 3
   unitSpacingX_Axis: 1
   unitSpacingZ_Axis: 1
   formationJitter: 0
@@ -34518,7 +34467,7 @@ MonoBehaviour:
   coinsAllTime: 0
   unitMaterial: {fileID: 2100000, guid: 261d01d7122669b47aad7c7121b14fd2, type: 2}
   lookTransform: {fileID: 5718548620309332731}
-  startingUnitsCount: 20
+  startingUnitsCount: 3
   unitSpacingX_Axis: 1
   unitSpacingZ_Axis: 1
   formationJitter: 0

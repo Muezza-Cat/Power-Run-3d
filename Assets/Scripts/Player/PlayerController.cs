@@ -31,6 +31,8 @@ public class PlayerController : BaseController
 
     private void Awake()
     {
+        poolKey = ObjectPooler.PoolKey.PlayerUnit;
+
         controller = GetComponent<CharacterController>();
         hordeFormation = GetComponent<HordeFormation>();
         animator = GetComponentInChildren<Animator>();
