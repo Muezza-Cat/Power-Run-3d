@@ -9,7 +9,7 @@ public class UnitSelector : MonoBehaviour
     #endregion
 
     [Header("Setting")]
-    [HideInInspector] public GameObject selectedUnit;
+    [HideInInspector] public ObjectPooler.UnitKey selectedUnitKey;
 
 
 
@@ -32,11 +32,11 @@ public class UnitSelector : MonoBehaviour
 
     private void UnitTemplateUI_OnTemplateUpdated(object sender, UnitTemplateUI.OnTemplateUpdatedEventArgs e)
     {
-        selectedUnit = e.unitTemplateUI.unitTemplateSO.unitPrefab;
+        selectedUnitKey = e.unitTemplateUI.unitTemplateSO.unitKey;
         SaveSystem.Instance.SaveData();
 
         GameplayManager.Instance.playerHorde.ClearUnitsList(); //Units are dequeued in the beginning to spawn in the horde, so they must be cleared out too.
-        ObjectPooler.Instance.ChangeUnitInPool(selectedUnit);
+        ObjectPooler.Instance.ChangeUnitInPool(ObjectPooler.Instance.GetUnitPrefab(selectedUnitKey));
 
         GameplayManager.Instance.playerHorde.AddStartingUnits(GameplayManager.Instance.playerHorde.GetUnitPositionList());
     }

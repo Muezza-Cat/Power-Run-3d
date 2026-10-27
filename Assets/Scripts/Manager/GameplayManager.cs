@@ -84,8 +84,8 @@ public class GameplayManager : MonoBehaviour
 
     private void Start()
     {
-        if (SaveSystem.Instance != null ) SaveSystem.Instance.SaveData(); //Save at Game Start;
-        else Debug.LogWarning("SaveSystem's Instance is null");
+        //if (SaveSystem.Instance != null ) SaveSystem.Instance.SaveData(); //Save at Game Start;
+        //else Debug.LogWarning("SaveSystem's Instance is null");
 
         foreach (HordeFormation hordeFormation in hordeFormations)
         {

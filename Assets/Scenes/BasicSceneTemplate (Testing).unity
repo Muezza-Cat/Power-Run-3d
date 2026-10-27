@@ -20538,7 +20538,7 @@ MonoBehaviour:
   unitNameText: {fileID: 914747751}
   selectionButton: {fileID: 1519139165}
   UNIT_NAME: Basic Unit 1
-  isSelected: 1
+  isSelected: 0
 --- !u!1 &1580520332
 GameObject:
   m_ObjectHideFlags: 0
@@ -20621,7 +20621,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88c218e4af30ec14d9ac7ea01a992577, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitSelector
-  selectedUnit: {fileID: 0}
+  selectedUnitKey: 0
 --- !u!1 &1607796193
 GameObject:
   m_ObjectHideFlags: 0

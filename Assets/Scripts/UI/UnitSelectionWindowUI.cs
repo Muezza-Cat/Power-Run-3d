@@ -22,7 +22,7 @@ public class UnitSelectionWindowUI : MonoBehaviour
     public Sprite selectedButtonImage;
     public Sprite unselectedButtonImage;
 
-    /*[SerializeField] */private UnitTemplateUI selectedUnitTemplateUI;
+    private int selectedUnitTemplateIndex;  
 
 
     [Header("Collection")]
@@ -54,8 +54,7 @@ public class UnitSelectionWindowUI : MonoBehaviour
 
     private void UnitTemplateUI_OnTemplateUpdated(object sender, UnitTemplateUI.OnTemplateUpdatedEventArgs e)
     {
-        selectedUnitTemplateUI = e.unitTemplateUI;
-        Debug.Log("selectedUnitTemplateUI: " + selectedUnitTemplateUI);
+        selectedUnitTemplateIndex = unitTemplateList.IndexOf(e.unitTemplateUI);
         SaveSystem.Instance.SaveData();
 
         ResetAllTemplates?.Invoke(this, EventArgs.Empty);
@@ -74,25 +73,23 @@ public class UnitSelectionWindowUI : MonoBehaviour
     [Serializable]
     public class SaveObject
     {
-        public UnitTemplateUI unitTemplateUI;
+        public int unitTemplateIndex;
     }
 
     public SaveObject Save()
     {
-        return new SaveObject() { unitTemplateUI = selectedUnitTemplateUI };
+        return new SaveObject() { unitTemplateIndex = selectedUnitTemplateIndex};
     }
 
     public void Load(SaveObject saveObject)
     {
-        if (saveObject.unitTemplateUI == null)
+        if (saveObject.unitTemplateIndex < 0)
         {
-            Debug.LogWarning("UnitTemplateUI is null");
+            Debug.LogWarning("Invalid unitTemplateIndex");
             return;
         }
-        selectedUnitTemplateUI = saveObject.unitTemplateUI;
-        Debug.Log(selectedUnitTemplateUI);
 
-        selectedUnitTemplateUI.DisplayAsSelected();
-        selectedUnitTemplateUI.isSelected = true;
+        unitTemplateList[saveObject.unitTemplateIndex].DisplayAsSelected();
+        unitTemplateList[saveObject.unitTemplateIndex].isSelected = true;
     }
 }

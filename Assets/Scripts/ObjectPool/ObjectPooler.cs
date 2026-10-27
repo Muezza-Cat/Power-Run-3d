@@ -19,7 +19,6 @@ public class ObjectPooler : MonoBehaviour
     [Header("Reference")]
     //Testing
     public GameObject playerUnitPrefab;
-    private GameObject savedPlayerUnitPrefab;
     [SerializeField] private GameObject enemyUnit;
     //[SerializeField] private GameObject unit;
     [SerializeField] private GameObject coin;
@@ -45,12 +44,33 @@ public class ObjectPooler : MonoBehaviour
         Apple,
     }
 
+    public enum UnitKey
+    {
+        Man,
+        Woman,
+    }
+
+
+
+    public GameObject GetUnitPrefab(UnitKey unitKey)
+    {
+        foreach (UnitTemplateUI unitTemplateUI in UnitSelectionWindowUI.Instance.GetUnitTemplateList())
+        {
+            if (unitTemplateUI.unitTemplateSO.unitKey == unitKey)
+            {
+                return unitTemplateUI.unitTemplateSO.unitPrefab;
+            }
+        }
+        return null;
+    }
+
+
+
 
 
     private void Awake()
     {
         Instance = this;
-        savedPlayerUnitPrefab = playerUnitPrefab;
 
         bigPool = new Dictionary<PoolKey, Queue<GameObject>>();
 
@@ -269,22 +289,17 @@ public class ObjectPooler : MonoBehaviour
     [Serializable]
     public class SaveObject
     {
-        public GameObject unitPrefab;
+        public UnitKey unitKey; 
+
     }
     
     public SaveObject Save()
     {
-         return new SaveObject() { unitPrefab = UnitSelector.Instance.selectedUnit };
+         return new SaveObject() { unitKey = UnitSelector.Instance.selectedUnitKey };
     }
 
     public void Load(SaveObject saveObject)
     {
-        if (saveObject.unitPrefab == null)
-        {
-            Debug.Log("There is no savedUnit in ObjectPooler");
-            playerUnitPrefab = savedPlayerUnitPrefab;
-            return;
-        }
-        playerUnitPrefab = saveObject.unitPrefab;
+        playerUnitPrefab = GetUnitPrefab(saveObject.unitKey);
     }
 }
