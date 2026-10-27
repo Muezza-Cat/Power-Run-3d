@@ -32,7 +32,7 @@ public class SaveSystem : MonoBehaviour
 
     private void Start()
     {
-        LoadData();
+        LoadLevelData();
     }
 
 
@@ -41,6 +41,8 @@ public class SaveSystem : MonoBehaviour
     public class MainSaveObjectClass
     {
         public GameplayManager.SaveObject gameplayManagerSaveObject;
+        public ObjectPooler.SaveObject objectPoolerSaveObject;
+        public UnitSelectionWindowUI.SaveObject unitSelectionWindowUISaveObject;
     }
 
 
@@ -51,9 +53,12 @@ public class SaveSystem : MonoBehaviour
     // - Saving when a game is completed (not done)
     public void SaveData()
     {
+        Debug.Log("Saved Data");
         string json = JsonUtility.ToJson(new MainSaveObjectClass()
         {
             gameplayManagerSaveObject = GameplayManager.Instance.SaveOnLevelLoad(GameStateManager.Instance.IsGameOver()),
+            objectPoolerSaveObject = ObjectPooler.Instance.Save(),
+            unitSelectionWindowUISaveObject = UnitSelectionWindowUI.Instance.Save()
         });
 
         if (GameplayManager.Instance == null) Debug.LogWarning("Null reference to GameplayManager");
@@ -62,7 +67,7 @@ public class SaveSystem : MonoBehaviour
 
 
     //Only run once when the game is opened.
-    public void LoadData()
+    public void LoadLevelData()
     {
         if (!File.Exists(Application.dataPath + "/Saves/saveFile.sav"))
         {
@@ -75,7 +80,33 @@ public class SaveSystem : MonoBehaviour
             string json = File.ReadAllText(Application.dataPath + "/Saves/saveFile.sav");
 
             MainSaveObjectClass saveLoadSystem = JsonUtility.FromJson<MainSaveObjectClass>(json);
-            SceneManager.LoadScene(saveLoadSystem.gameplayManagerSaveObject.targetSceneIndex);
+            //GameplayManager.Instance.Load(saveLoadSystem.gameplayManagerSaveObject);
+
+            SceneManager.LoadScene(SceneLoader.targetSceneIndex);
+        }
+    }
+
+
+    public void LoadInGameData()
+    {
+        if (!File.Exists(Application.dataPath + "/Saves/saveFile.sav")) { return; }
+        else
+        {
+            string json = File.ReadAllText(Application.dataPath + "/Saves/saveFile.sav");
+
+            MainSaveObjectClass saveLoadSystem = JsonUtility.FromJson<MainSaveObjectClass>(json);
+
+            if (saveLoadSystem.unitSelectionWindowUISaveObject == null || saveLoadSystem.objectPoolerSaveObject == null)
+            {
+                Debug.LogWarning("Null Reference");
+            }
+
+            if (ObjectPooler.Instance == null) Debug.Log("ObjectPooler's Instance is null");
+            if (UnitSelectionWindowUI.Instance == null) Debug.Log("UnitSelectionWindowUI's Instance is null");
+
+
+            ObjectPooler.Instance.Load(saveLoadSystem.objectPoolerSaveObject);
+            UnitSelectionWindowUI.Instance.Load(saveLoadSystem.unitSelectionWindowUISaveObject);
         }
     }
 }

@@ -27,4 +27,10 @@ public class EnemyManager : MonoBehaviour
             controller.enemyController.SetDifficultyMode(controller.difficultyMode);
         }
     }
+
+
+    public int GetEnemyHordeCount()
+    {
+        return difficultyModes.Count;
+    }
 }

@@ -76,12 +76,14 @@ public class HordeFormation : MonoBehaviour
         unitSpacingZ = unitSpacingZ_Axis;
 
         baseController = GetComponent<BaseController>();
+        EvaluatePoints((kingLocation == KingLocation.Center)? true : false);
     }
+
+
 
 
     private void Start()
     {
-        EvaluatePoints((kingLocation == KingLocation.Center)? true : false);
         AddStartingUnits(points);
     }
 
@@ -156,14 +158,13 @@ public class HordeFormation : MonoBehaviour
             if (units.Count >= startingUnitsCount) break;
 
             GameObject unitToSpawn = ObjectPooler.Instance.SpawnUnit(transform.TransformPoint(position), Quaternion.identity, this);
+
             unitToSpawn.GetComponent<Unit>().targetPosition = transform.TransformPoint(position);
             units.Add(unitToSpawn.transform);
 
             unitToSpawn.layer = lookTransform.gameObject.layer;
             unitToSpawn.GetComponent<Unit>().Initialize(this);
         }
-        //Testing
-        if (this == GameplayManager.Instance.playerHorde) Debug.Log("Added units in the PlayerHorde");
     }
 
 
@@ -194,6 +195,8 @@ public class HordeFormation : MonoBehaviour
     public void AddUnitForFree(Transform spawnTransform)
     {
         GameObject unitToAdd = ObjectPooler.Instance.SpawnUnit(spawnTransform.position, Quaternion.identity, this);
+        //if (ObjectPooler.Instance == null) Debug.Log("ObjectPooler's Instance is null");
+
         unitToAdd.layer = lookTransform.gameObject.layer;
         units.Add(unitToAdd.transform);
 
@@ -233,7 +236,6 @@ public class HordeFormation : MonoBehaviour
         {
             Transform unitToRemove = units[0];
             units.Remove(unitToRemove);
-            Debug.Log("Cleared unit from the list, units.Count : " + units.Count);
             Destroy(unitToRemove.gameObject);
         }
         if (units == null) Debug.Log("Units is null");

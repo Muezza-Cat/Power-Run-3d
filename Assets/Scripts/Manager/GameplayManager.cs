@@ -84,7 +84,7 @@ public class GameplayManager : MonoBehaviour
 
     private void Start()
     {
-        if (SaveSystem.Instance != null ) SaveSystem.Instance.SaveData();
+        if (SaveSystem.Instance != null ) SaveSystem.Instance.SaveData(); //Save at Game Start;
         else Debug.LogWarning("SaveSystem's Instance is null");
 
         foreach (HordeFormation hordeFormation in hordeFormations)
@@ -263,6 +263,6 @@ public class GameplayManager : MonoBehaviour
     public void Load(SaveObject saveObject)
     {
         int sceneIndex = saveObject.targetSceneIndex;
-        SceneLoader.LoadScene(/*(SceneLoader.Scene) */sceneIndex);
+        SceneManager.LoadScene(/*(SceneLoader.Scene) */sceneIndex);
     }
 }

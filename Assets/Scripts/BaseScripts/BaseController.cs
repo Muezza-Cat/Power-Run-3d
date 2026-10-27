@@ -2,7 +2,7 @@ using UnityEngine;
 
 public abstract class BaseController : MonoBehaviour
 {
-    public ObjectPooler.PoolKey poolKey;
+    [HideInInspector] public ObjectPooler.PoolKey poolKey;
     public abstract LayerMask GetInteractableLayers();
     public abstract Vector3 GetRotation();
     public abstract void SetCurrentMoveSpeed(float newMoveSpeed);

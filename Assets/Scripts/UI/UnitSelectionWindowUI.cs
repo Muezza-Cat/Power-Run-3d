@@ -18,9 +18,11 @@ public class UnitSelectionWindowUI : MonoBehaviour
 
 
     [Header("Reference")]
-    [SerializeField] private UnitTemplateUI baseUnitTemplateUI;
+    [SerializeField] private UnitTemplateUI baseUnitTemplateUI; //Must have one default;
     public Sprite selectedButtonImage;
     public Sprite unselectedButtonImage;
+
+    /*[SerializeField] */private UnitTemplateUI selectedUnitTemplateUI;
 
 
     [Header("Collection")]
@@ -44,6 +46,7 @@ public class UnitSelectionWindowUI : MonoBehaviour
 
             unitTemplateUI.OnTemplateUpdated += UnitTemplateUI_OnTemplateUpdated;
         }
+
     }
 
 
@@ -51,6 +54,10 @@ public class UnitSelectionWindowUI : MonoBehaviour
 
     private void UnitTemplateUI_OnTemplateUpdated(object sender, UnitTemplateUI.OnTemplateUpdatedEventArgs e)
     {
+        selectedUnitTemplateUI = e.unitTemplateUI;
+        Debug.Log("selectedUnitTemplateUI: " + selectedUnitTemplateUI);
+        SaveSystem.Instance.SaveData();
+
         ResetAllTemplates?.Invoke(this, EventArgs.Empty);
     }
 
@@ -58,5 +65,34 @@ public class UnitSelectionWindowUI : MonoBehaviour
     public List<UnitTemplateUI> GetUnitTemplateList()
     {
         return unitTemplateList;
+    }
+
+
+
+
+
+    [Serializable]
+    public class SaveObject
+    {
+        public UnitTemplateUI unitTemplateUI;
+    }
+
+    public SaveObject Save()
+    {
+        return new SaveObject() { unitTemplateUI = selectedUnitTemplateUI };
+    }
+
+    public void Load(SaveObject saveObject)
+    {
+        if (saveObject.unitTemplateUI == null)
+        {
+            Debug.LogWarning("UnitTemplateUI is null");
+            return;
+        }
+        selectedUnitTemplateUI = saveObject.unitTemplateUI;
+        Debug.Log(selectedUnitTemplateUI);
+
+        selectedUnitTemplateUI.DisplayAsSelected();
+        selectedUnitTemplateUI.isSelected = true;
     }
 }

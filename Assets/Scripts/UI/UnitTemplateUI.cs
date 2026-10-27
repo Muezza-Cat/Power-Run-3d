@@ -13,7 +13,7 @@ public class UnitTemplateUI : MonoBehaviour
 
     public class OnTemplateUpdatedEventArgs : EventArgs
     {
-        public UnitTemplateUI unitTempalteUI;
+        public UnitTemplateUI unitTemplateUI;
     }
 
 
@@ -63,7 +63,7 @@ public class UnitTemplateUI : MonoBehaviour
             //UI Part;
             if (isSelected) return;
 
-            OnTemplateUpdated?.Invoke(this, new OnTemplateUpdatedEventArgs() { unitTempalteUI = this});
+            OnTemplateUpdated?.Invoke(this, new OnTemplateUpdatedEventArgs() { unitTemplateUI = this});
 
             isSelected = true;
             DisplayAsSelected();
@@ -90,22 +90,5 @@ public class UnitTemplateUI : MonoBehaviour
         Color color = backgroundImage.color;
         color.a = bgDefaultAlphaValue;
         backgroundImage.color = color;
-    }
-
-
-    //Under Construction;
-    public class SaveSystem
-    {
-        public bool isSelected;
-    }
-
-    public void Save()
-    {
-
-    }
-
-    public void Load()
-    {
-
     }
 }

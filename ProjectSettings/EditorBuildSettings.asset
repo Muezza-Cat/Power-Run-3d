@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BasicSceneTemplate (Testing).unity
     guid: 136b6f634e676444dad668c5cea06ec6
+  - enabled: 1
+    path: Assets/Scenes/BasicSceneTemplate (Testing) 1.unity
+    guid: d68b4869b82a8c946b228ee22e1dce2e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

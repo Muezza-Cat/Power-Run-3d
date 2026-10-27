@@ -52,9 +52,7 @@ public class GameStateManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Before TogglingGameState, Time.timeScale : " + Time.timeScale);
         ToggleGameState();
-        Debug.Log("After TogglingGameState, Time.timeScale : " + Time.timeScale);
     }
 
 
@@ -84,7 +82,7 @@ public class GameStateManager : MonoBehaviour
 
                 OnStateChanged?.Invoke();
                 isGameOver = true;
-                if (SaveSystem.Instance != null) SaveSystem.Instance.SaveData(); //Testing Phase 
+                if (SaveSystem.Instance != null) SaveSystem.Instance.SaveData(); // Save at game end;
                 else Debug.LogWarning("SaveSystem Instance is null");
                 // Imp note : Null Reference Exception prevents the code below from executing; Make sure to keep risky code at the bottom with null checks after main logic ends.
                 break;

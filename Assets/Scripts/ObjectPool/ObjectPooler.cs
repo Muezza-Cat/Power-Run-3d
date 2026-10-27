@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -18,7 +18,8 @@ public class ObjectPooler : MonoBehaviour
 
     [Header("Reference")]
     //Testing
-    [SerializeField] private GameObject playerUnit;
+    public GameObject playerUnitPrefab;
+    private GameObject savedPlayerUnitPrefab;
     [SerializeField] private GameObject enemyUnit;
     //[SerializeField] private GameObject unit;
     [SerializeField] private GameObject coin;
@@ -27,7 +28,8 @@ public class ObjectPooler : MonoBehaviour
     [Header("Settings")]
     private int numberOfHordes;
     [SerializeField] private int maxUnitCapacityInHorde = 25;
-    private int numOfObjectsToPool;
+    private int numOfEnemyUnitsToPool;
+    private int numOfPlayerUnitsToPool;
 
     [Header("Spawnable")]
     public int totalNumOfCoins = 250;
@@ -48,36 +50,29 @@ public class ObjectPooler : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        savedPlayerUnitPrefab = playerUnitPrefab;
 
         bigPool = new Dictionary<PoolKey, Queue<GameObject>>();
 
-        numberOfHordes = GameplayManager.Instance.GetHordeFormation().Count;
-        numOfObjectsToPool = numberOfHordes * maxUnitCapacityInHorde;
 
         bigPool.Add(PoolKey.Unit, new Queue<GameObject>());
         bigPool.Add(PoolKey.Coin, new Queue<GameObject>());
         bigPool.Add(PoolKey.Apple, new Queue<GameObject>());
-
-        //Testing
         bigPool.Add(PoolKey.PlayerUnit, new Queue<GameObject>());
         bigPool.Add(PoolKey.EnemyUnit, new Queue<GameObject>());
+        //Queue is Empty till now;
 
+        if (SaveSystem.Instance != null) SaveSystem.Instance.LoadInGameData();
 
-        /*for (int i = 0; i < numOfObjectsToPool; i++)
-        {
-            if (unit == null)
-            {
-                Debug.LogWarning("Null reference of UnitPrefab in ObjectPooler.cs");
-                break;
-            }
-            GameObject obj = Instantiate(unit, transform.position, Quaternion.identity);
-            obj.SetActive(false);
+        if (EnemyManager.Instance == null) Debug.Log("EnemyManager's Instance is null");
+        if (GameplayManager.Instance == null) Debug.Log("GameplayManager's Instance is null");
 
-            bigPool[PoolKey.Unit].Enqueue(obj);
-        }*/
+        numberOfHordes = GameplayManager.Instance.GetHordeFormation().Count;
+        numOfEnemyUnitsToPool = EnemyManager.Instance.GetEnemyHordeCount() * (maxUnitCapacityInHorde + 5); //5 is just extra for extreme case.
+        numOfPlayerUnitsToPool = maxUnitCapacityInHorde + 5;
 
-
-        for (int i = 0; i < numOfObjectsToPool; i++)
+        //EnemyUnit Pooling;
+        for (int i = 0; i < numOfEnemyUnitsToPool; i++)
         {
             if (enemyUnit == null)
             {
@@ -90,21 +85,21 @@ public class ObjectPooler : MonoBehaviour
             bigPool[PoolKey.EnemyUnit].Enqueue(obj);
         }
 
-
-        for (int i = 0; i < maxUnitCapacityInHorde + 5f; i++)
+        //PlayerUnit Pooling;
+        for (int i = 0; i < numOfPlayerUnitsToPool; i++)
         {
-            if (playerUnit == null)
+            if (playerUnitPrefab == null)
             {
                 Debug.LogWarning("Null reference of PlayerUnitPrefab in ObjectPooler.cs");
                 break;
             }
-            GameObject obj = Instantiate(playerUnit, transform.position, Quaternion.identity);
+            GameObject obj = Instantiate(playerUnitPrefab, transform.position, Quaternion.identity);
             obj.SetActive(false);
 
             bigPool[PoolKey.PlayerUnit].Enqueue(obj);
         }
 
-
+        //Coin ObjectPooling;
         for (int i = 0; i < totalNumOfCoins; i++)
         {
             if (coin == null)
@@ -118,6 +113,7 @@ public class ObjectPooler : MonoBehaviour
             bigPool[PoolKey.Coin].Enqueue(obj);
         }
 
+        //Apple ObjectPooling;
         for (int i = 0; i < totalNumOfApples; i++)
         {
             if (apple == null)
@@ -131,18 +127,32 @@ public class ObjectPooler : MonoBehaviour
             bigPool[PoolKey.Apple].Enqueue(obj);
         }
 
-        //pool = new Queue<GameObject>();
-        //numberOfHordes = EnemyManager.Instance.hordeFormations.Count;
 
-        //numOfObjectsToPool = numberOfHordes * maxUnitCapacityInHorde;
 
-        //for (int i = 0; i < numOfObjectsToPool; i++)
-        //{
-        //    GameObject obj = Instantiate(unit, transform.position, Quaternion.identity);
-        //    obj.SetActive(false);
+        /*pool = new Queue<GameObject>();
+        numberOfHordes = EnemyManager.Instance.hordeFormations.Count;
 
-        //    pool.Enqueue(obj);
-        //}
+        numOfObjectsToPool = numberOfHordes * maxUnitCapacityInHorde;
+
+        for (int i = 0; i < numOfObjectsToPool; i++)
+        {
+            GameObject obj = Instantiate(unit, transform.position, Quaternion.identity);
+            obj.SetActive(false);
+
+            pool.Enqueue(obj);
+        }*/
+        /*for (int i = 0; i < numOfObjectsToPool; i++)
+        {
+            if (unit == null)
+            {
+                Debug.LogWarning("Null reference of UnitPrefab in ObjectPooler.cs");
+                break;
+            }
+            GameObject obj = Instantiate(unit, transform.position, Quaternion.identity);
+            obj.SetActive(false);
+
+            bigPool[PoolKey.Unit].Enqueue(obj);
+        }*/
     }
 
 
@@ -157,6 +167,11 @@ public class ObjectPooler : MonoBehaviour
 
         return unitToSpawn;
     }*/
+
+
+
+
+
 
     //Testing
     public GameObject SpawnUnit(Vector3 spawnPosition, Quaternion spawnRotation, HordeFormation hordeFormation)
@@ -247,5 +262,29 @@ public class ObjectPooler : MonoBehaviour
             unit.SetActive(false);
             bigPool[PoolKey.PlayerUnit].Enqueue(unit);
         }
+    }
+
+
+
+    [Serializable]
+    public class SaveObject
+    {
+        public GameObject unitPrefab;
+    }
+    
+    public SaveObject Save()
+    {
+         return new SaveObject() { unitPrefab = UnitSelector.Instance.selectedUnit };
+    }
+
+    public void Load(SaveObject saveObject)
+    {
+        if (saveObject.unitPrefab == null)
+        {
+            Debug.Log("There is no savedUnit in ObjectPooler");
+            playerUnitPrefab = savedPlayerUnitPrefab;
+            return;
+        }
+        playerUnitPrefab = saveObject.unitPrefab;
     }
 }
