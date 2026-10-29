@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using UnityEngine.UI;
 
 
 //Testing Phase;
@@ -19,10 +20,16 @@ public class UnitSelectionWindowUI : MonoBehaviour
 
     [Header("Reference")]
     [SerializeField] private UnitTemplateUI baseUnitTemplateUI; //Must have one default;
+    [SerializeField] private Transform unitSelectionWindowUITransform;
     public Sprite selectedButtonImage;
     public Sprite unselectedButtonImage;
 
-    private int selectedUnitTemplateIndex;  
+    private int selectedUnitTemplateIndex;
+
+
+    [Header("Buttons")]
+    [SerializeField] private Button openUnitSelectionUIButton;
+    [SerializeField] private Button closeUnitSelectionUIButton;
 
 
     [Header("Collection")]
@@ -48,6 +55,22 @@ public class UnitSelectionWindowUI : MonoBehaviour
         }
 
     }
+
+
+    private void Start()
+    {
+        openUnitSelectionUIButton.onClick.AddListener(() =>
+        {
+            ShowWindow();
+        });
+        closeUnitSelectionUIButton.onClick.AddListener(() =>
+        {
+            HideWindow();
+        });
+
+        HideWindow();
+    }
+
 
 
 
@@ -91,5 +114,18 @@ public class UnitSelectionWindowUI : MonoBehaviour
 
         unitTemplateList[saveObject.unitTemplateIndex].DisplayAsSelected();
         unitTemplateList[saveObject.unitTemplateIndex].isSelected = true;
+    }
+
+
+
+    private void ShowWindow()
+    {
+        unitSelectionWindowUITransform.gameObject.SetActive(true);
+    }
+
+
+    private void HideWindow()
+    {
+        unitSelectionWindowUITransform.gameObject.SetActive(false);
     }
 }
